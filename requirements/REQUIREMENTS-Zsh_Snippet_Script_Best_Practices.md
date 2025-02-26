@@ -228,33 +228,6 @@ if [[ "${(%):-%N}" == "$0" ]]; then
    main "$@"
 fi
 ```
-
-### Secure Execution: Block Redirections and Output Containment
-  - **Use `{}` blocks to encapsulate command sequences**, ensuring related commands execute within a controlled scope and preventing unintended side effects:
-```zsh
-{
-    setopt localoptions KSH_TYPESET
-    git fetch origin
-    git merge origin/main
-} || {
-    print -u2 "Error: Failed to update repository"
-    return 1
-}
-```
-  - **Redirect command output explicitly** to avoid unintentional leakage:
-```zsh
-{
-    some_command >output.log 2>&1
-} || print -u2 "Error: Command execution failed"
-```
-  - **Use `print --` to safely output values without unintended expansion**:
-```zsh
-print -- "$variableContainingUserInput"
-```
-  - **Suppress unwanted output when necessary** to avoid cluttering logs:
-```zsh
-some_command >/dev/null 2>&1
-```
   
 ## Zsh Snippet Scripting - Error Handling Requirements
 
