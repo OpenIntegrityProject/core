@@ -1,4 +1,4 @@
-_file: `https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/ISSUES-Open_Integrity_Scripting_Infrastructure.md`_
+_file: `https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md`_
 
 # Open Integrity Project - System-Wide Scripting Infrastructure Issues
 _(Last updated: 2025-02-26, Christopher Allen <ChristopherA@LifeWithAlacrity.com>)_
