@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 ########################################################################
 ## Script:        create_inception_commit.sh
-## Version:       0.1.00 (2025-02-25)
+## Version:       0.1.01 (2025-02-26)
 ## Origin:        https://github.com/BlockchainCommons/open_integrity-git_inception_WIP
 ## Description:   Creates a new Git repository with a properly signed empty
 ##                inception commit following Open Integrity Project standards.
@@ -28,6 +28,9 @@ setopt errexit nounset pipefail localoptions warncreateglobal
 typeset -r Script_Name=$(basename "$0")
 typeset -r Script_Version="0.1.00"
 
+# Capture original arguments for help flag detection
+typeset -r Original_Args="$*"
+
 # Script-scoped exit status codes
 typeset -r Exit_Status_Success=0
 typeset -r Exit_Status_General=1
@@ -47,9 +50,10 @@ typeset Repo_Path="$Default_Repo_Name"
 # Description:
 #   Displays usage information for the script
 # Parameters:
-#   None
+#   $1 - Optional error flag (if not provided, exits with success)
 # Returns:
-#   Exits with Exit_Status_Usage
+#   Exit_Status_Success when called with no error flag
+#   Exit_Status_Usage when called with error flag
 #----------------------------------------------------------------------#
 show_Usage() {
     print "$Script_Name v$Script_Version - Create an Open Integrity signed inception commit"
@@ -66,7 +70,13 @@ show_Usage() {
     print "  $Script_Name                      Create with default name"
     print "  $Script_Name --repo my_repo       Create with custom name"
     print "  $Script_Name --repo /path/to/repo Create with full path"
-    exit $Exit_Status_Usage
+    
+    # Exit with success for help, error for invalid usage
+    if [[ "${1:-}" == "error" ]]; then
+        exit $Exit_Status_Usage
+    else
+        exit $Exit_Status_Success
+    fi
 }
 
 #----------------------------------------------------------------------#
@@ -400,7 +410,7 @@ oi_Create_Inception_Commit() {
 }
 
 #----------------------------------------------------------------------#
-# Function: parse_Parameters
+# Function: parse_Arguments
 #----------------------------------------------------------------------#
 # Description:
 #   Processes command line parameters
@@ -411,13 +421,13 @@ oi_Create_Inception_Commit() {
 #   Exit_Status_Success if parameters are valid
 #   Calls show_Usage() for invalid parameters
 #----------------------------------------------------------------------#
-parse_Parameters() {
+parse_Arguments() {
     while (( $# > 0 )); do
         case "$1" in
             -r|--repo)
                 if (( $# < 2 )); then
                     print -u2 "Error: Option $1 requires an argument"
-                    show_Usage
+                    show_Usage "error"
                 fi
                 Repo_Path="$2"
                 shift 2
@@ -427,11 +437,11 @@ parse_Parameters() {
                 ;;
             -*)
                 print -u2 "Error: Unknown option: $1"
-                show_Usage
+                show_Usage "error"
                 ;;
             *)
                 print -u2 "Error: Unexpected argument: $1"
-                show_Usage
+                show_Usage "error"
                 ;;
         esac
     done
@@ -493,7 +503,7 @@ main() {
     z_Check_Dependencies "git" "ssh-keygen" "date" "awk" || exit $?
 
     # Parse command line parameters
-    parse_Parameters "$@" || exit $?
+    parse_Arguments "$@" || exit $?
 
     # Verify Git configuration
     oi_Verify_Git_Config || exit $?
