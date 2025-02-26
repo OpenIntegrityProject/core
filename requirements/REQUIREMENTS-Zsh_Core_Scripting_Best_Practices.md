@@ -1,4 +1,4 @@
-_file: `REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md`_
+_file: `https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md`_
 
 # Zsh Core Scripting Requirements and Best Practices
 _(last updated 2024-02-24, Christopher Allen <ChristopherA@LifeWithAlacrity.com> Github/Twitter/Bluesky: @ChristopherA)_
