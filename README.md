@@ -32,11 +32,15 @@ This repository is organized to separate different types of scripts and document
 This structure maintains a clear separation between global requirements, larger project components, and small utility scripts, making it easier to navigate and maintain the Open Integrity codebase.
 
 ```console
-% tree -a -I ".git|.DS_Store"
+docs % tree -a -I ".git|.DS_Store"
 .
 ├── .gitignore
+├── README.md
+├── issues
+│   ├── ISSUES-Open_Integrity_Scripting_Infrastructure.md
+│   └── ISSUES-Zsh_Core_Scripting_Best_Practices.md
 ├── requirements
-│   ├── REQUIREMENTS-Zsh_Core_Scripting_Best Practices.md
+│   ├── REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md
 │   └── REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md
 ├── snippets
 │   ├── create_inception_commit.sh
@@ -50,5 +54,5 @@ This structure maintains a clear separation between global requirements, larger 
 │       └── TEST-create_inception_commit.sh
 └── tests
 
-6 directories, 10 files
+7 directories, 13 files
 ```
