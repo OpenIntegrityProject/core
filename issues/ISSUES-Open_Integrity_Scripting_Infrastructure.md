@@ -3,35 +3,41 @@ _file: `https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-
 # Open Integrity Project - System-Wide Scripting Infrastructure Issues
 _(Last updated: 2025-02-26, Christopher Allen <ChristopherA@LifeWithAlacrity.com>)_
 
-## Commit Signature, Sign-Off, and Pull Request Enforcement
+## Open Integrity Commit Enforcement
 
-### ISSUE: Enforcing Commit Sign-Off at Git and GitHub Levels  
+### ISSUE: Automating GitHub & Git Enforcement of Signed Commits and Sign-Offs
 
 **Context:**  
-Open Integrity repositories require all commits to be **signed off** by the `git` author using the `Signed-off-by` trailer, either by using the `-s|--signoff` argument in `git commit` or by manually adding it to the commit message. However, there is currently no enforcement mechanism at the local `git` level or on GitHub to **ensure compliance** with this requirement.
+To ensure repository integrity, Open Integrity requires that:
+1. **All commits be cryptographically signed (`git commit -S`).**
+2. **All commits contain `Signed-off-by:` (`git commit -s`).**
+3. **Only merge commits (not squash/rebase) are used to preserve commit signatures.**
+4. **Direct commits from the GitHub web interface are blocked.**
+5. **Automated enforcement exists across all repositories.**
 
-**Current:**  
-- Developers may forget to sign off their commits, leading to **policy non-compliance**.  
-- Git does not provide **built-in enforcement** for the presence of a `Signed-off-by` trailer.  
-- GitHub allows enforcement via **branch protection rules**, **GitHub Actions**, or **pre-receive hooks** on Enterprise plans, but no standardized enforcement mechanism exists across repositories.  
-- There is **no automatic verification at commit time** unless users set up a local `commit-msg` hook.  
+Git and GitHub offer tools for enforcing these policies, but **there is no single automated system** that ensures consistency across all repositories.
 
-**Impact:**  
-- **Policy Violation:** Non-compliant commits may be merged without proper sign-offs.  
-- **Legal and Compliance Risk:** The sign-off process aligns with the Developer Certificate of Origin (DCO), ensuring authorship attestation. Missing sign-offs weaken compliance.  
-- **Inconsistent Enforcement:** Some contributors may enforce sign-offs manually, while others may not.  
-- **Manual Overhead:** Maintainers must **manually check** commits for compliance.  
+**Current Challenges:**  
+- **Unsigned commits can be merged**, undermining repository trust.
+- **Sign-offs (`Signed-off-by:`) are not enforced natively** and require separate validation.
+- **Squash and rebase merges strip commit signatures**, breaking the cryptographic chain.
+- **The GitHub web interface allows commits without signatures**, bypassing signing policies.
+- **GitHub Actions provide validation, but no uniform enforcement** exists across repositories.
 
-**Proposed Actions:**  
+**Impact of Lack of Enforcement:**  
+- **Security Risks:** Unsigned or improperly attributed commits reduce verifiability.
+- **Compliance Issues:** Missing sign-offs weaken the **Developer Certificate of Origin (DCO)** process.
+- **Manual Overhead:** Maintainers must manually check and enforce signing policies.
+- **Loss of Trust:** If signatures are stripped or bypassed, the repository chain of trust is broken.
 
-### 1. Enforce Sign-Off Locally Using Git Hooks  
-Implement a **local Git commit-msg hook** to prevent commits **without a Signed-off-by trailer**. This ensures enforcement at commit time.
+## **Proposed Actions:**
 
-**Example `commit-msg` Hook:**  
+### **1. Enforce Signed Commits & Sign-Off Locally Using Git Hooks**
+Ensure that **all commits are signed and include a Signed-off-by line** at the commit level.
+
+**Example `commit-msg` Hook to Require `Signed-off-by:`**  
 ```sh
 #!/bin/sh
-# Prevent commits without Signed-off-by trailer
-
 commit_msg_file="$1"
 signoff_pattern="^Signed-off-by:"
 
@@ -42,192 +48,132 @@ if ! grep -q "$signoff_pattern" "$commit_msg_file"; then
 fi
 ```
 
-**Distribution Strategy:**  
-- **Option 1:** Add instructions for developers to set up hooks manually.  
-- **Option 2:** Store hooks inside the repository (`.repo/hooks/commit-msg`) and instruct contributors to run:  
-```sh
-git config --local core.hooksPath .repo/hooks/
-```
-
-### 2. Enforce Sign-Off on GitHub Using Branch Protection Rules  
-GitHub allows enforcement of sign-offs using the **DCO App** or **branch protection rules**:  
-- Enable **"Require commit sign-off"** in repository settings.  
-- Enforce via **GitHub Actions** by adding a workflow that checks for the `Signed-off-by` trailer.
-
-**Example GitHub Action (`.github/workflows/signoff-check.yml`):**  
-```yaml
-name: Enforce Signed-Off Commits
-
-on: [pull_request]
-
-jobs:
-  check-signoff:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check for Signed-off-by line
-        run: |
-          if ! git log --format=%B -n 1 | grep -q "Signed-off-by:"; then
-            echo "ERROR: Commit is missing Signed-off-by line."
-            exit 1
-          fi
-```
-
-### 3. Enforce Sign-Off via GitHub CLI (`gh`) or API  
-For repository maintainers who use `gh` or the GitHub API:  
-- Use `gh pr list` and `gh pr view` to check commits before merging.  
-- Use the GitHub API to **automate checks** before pull requests are merged.
-
-**Example API Check (using `gh` CLI):**  
-```sh
-PR_NUMBER=$(gh pr list --json number --jq '.[0].number')
-COMMITS=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits[].message')
-
-if ! echo "$COMMITS" | grep -q "Signed-off-by:"; then
-    echo "ERROR: One or more commits are missing Signed-off-by."
-    exit 1
-fi
-```
-
-### 4. Improve Contributor Documentation  
-- Update repository guidelines to emphasize **commit sign-off policies**.  
-- Add a **pre-commit checklist** in `CONTRIBUTING.md`.  
-- Include **instructions** on configuring local Git hooks for automatic enforcement.  
-
-By implementing these actions, we ensure all commits to Open Integrity repositories are **properly signed off**, improving **compliance**, **security**, and **auditability**.
-
-### ISSUE: Enforcing Signed Commits and PR-Based Workflows
-
-**Context:**  
-The Open Integrity repositories require that all commits be signed and that pull request workflows be enforced to ensure repository integrity. However, there is currently no system-wide enforcement mechanism to ensure that these policies are consistently applied across all repositories.
-
-**Current:**  
-- Developers may commit unsigned changes, leading to compliance gaps.  
-- GitHub allows enforcement via **branch protection rules**, **GitHub Actions**, and **pre-receive hooks** (Enterprise), but no standardized enforcement exists across all repositories.  
-- No **automated verification** occurs at the commit or PR level without explicit setup.  
-
-**Impact:**  
-- **Policy Violation:** Unsigned commits may be merged, bypassing security policies.  
-- **Inconsistent Enforcement:** Different repositories may apply different rules, leading to confusion.  
-- **Manual Overhead:** Maintainers must manually verify compliance, increasing workload.  
-
-**Comparison of Enforcement Methods:**
-
-| **Method**                     | **Enforcement Level** | **Pros**                                               | **Cons**                                                 |
-|--------------------------------|----------------------|------------------------------------------------------|--------------------------------------------------------|
-| **Git Hooks (Local)**          | Developer's Machine  | Immediate feedback, enforced at commit time         | Requires manual setup by each developer               |
-| **Branch Protection Rules**    | GitHub Repository   | Centralized enforcement via GitHub settings        | Only applies to direct pushes, not PR merges         |
-| **GitHub Actions**             | PR-Level Automation | Automatic verification before merging              | Adds CI overhead, must be maintained                  |
-| **GitHub API/CLI Checks**      | Manual Review       | Can be integrated into custom review processes    | Requires manual execution or additional automation    |
-
-**Proposed Actions:**  
-
-### Enforce Signed Commits Locally Using Git Hooks  
-Implement a local **Git commit-msg hook** to prevent unsigned commits.  
-
-Example `commit-msg` hook:
+**Example `pre-commit` Hook to Require GPG-Signed Commits:**  
 ```sh
 #!/bin/sh
-commit_msg_file="$1"
-signoff_pattern="^Signed-off-by:"
-
-gpg --verify $(git rev-parse HEAD) 2>/dev/null
-if [ $? -ne 0 ]; then
+if ! git verify-commit HEAD &>/dev/null; then
     echo "ERROR: Your commit must be GPG signed."
     exit 1
 fi
-
-if ! grep -q "$signoff_pattern" "$commit_msg_file"; then
-    echo "ERROR: Your commit message must include a Signed-off-by line."
-    echo "Please sign off your commit using: git commit -s"
-    exit 1
-fi
 ```
 
-To automate hook installation, developers should configure:
+**Automation:**
+✅ Provide **setup scripts** to automatically install Git hooks.  
+✅ Update **documentation** on enforcing commit signing locally.  
+
+### **2. Enforce Signed Commits & Sign-Offs on GitHub via API**
+Enable **branch protections** that require **signed commits and prevent GitHub web UI commits**.
+
+#### **Require Signed Commits via GitHub API**
 ```sh
-git config --local core.hooksPath .repo/hooks/
+gh api --method PATCH \
+  -H "Accept: application/vnd.github.v3+json" \
+  "/repos/<owner>/<repo>/branches/main/protection" \
+  -f required_signatures=true
 ```
-Alternatively, using the [`pre-commit` framework](https://pre-commit.com/) can simplify setup:
-```yaml
-- repo: local
-  hooks:
-    - id: signed-commits
-      name: Enforce Signed Commits
-      entry: ./check_signed_commit.sh
-      language: system
-      types: [commit-msg]
+To verify:
+```sh
+gh api "/repos/<owner>/<repo>/branches/main/protection"
 ```
 
-### Enforce Signed Commits on GitHub via Branch Protection Rules  
-- Enable **"Require signed commits"** in repository settings. This setting ensures that all commits pushed directly to a protected branch must be signed, but it does not check PR merges.
-- Enforce via **GitHub Actions** by adding a workflow that checks for both commit signatures and `Signed-off-by` trailers.
-- Require **GitHub Actions as a status check** to enforce PR merge compliance:
+#### **Disable Squash and Rebase Merges (Preserve Commit Signatures)**
+```sh
+gh api --method PATCH \
+  -H "Accept: application/vnd.github.v3+json" \
+  "/repos/<owner>/<repo>" \
+  -f allow_squash_merge=false \
+  -f allow_rebase_merge=false
+```
+
+#### **Prevent Commits via GitHub Web Interface**
 ```sh
 gh api --method PUT \
-  -H "Accept: application/vnd.github+json" \
-  /repos/<OWNER>/<REPO>/branches/main/protection \
-  -f required_status_checks='{"strict": true, "contexts": ["Enforce Signed Commits"]}'
+  -H "Accept: application/vnd.github.v3+json" \
+  "/repos/<owner>/<repo>/branches/main/protection" \
+  -f required_status_checks='{"strict":true,"contexts":[]}' \
+  -f enforce_admins=true \
+  -f restrictions='{"users":[],"teams":[]}'
 ```
 
-### Improve GitHub Actions Enforcement
+**Automation:**
+✅ Provide a **script to configure repository settings automatically**.  
+✅ Update **repository documentation** on enforcing GitHub signing policies.  
 
-Example GitHub Action (`.github/workflows/enforce-signed-commits.yml`):
+---
+
+### **3. Enforce Signed Commits & Sign-Off in PRs via GitHub Actions**
+Create a **GitHub Action** that blocks PRs with unsigned commits or missing `Signed-off-by`.
+
+#### **Example GitHub Action (`.github/workflows/enforce-signatures.yml`)**
 ```yaml
-name: Enforce Signed Commits
-
+name: "Verify Signed Commits & Sign-Offs"
 on: [pull_request]
 
 jobs:
-  verify-signatures:
+  check-signatures:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Verify Signed Commits
+
+      - name: Verify commit signatures and sign-offs
         run: |
-          for commit in $(git rev-list --format=%H ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -v '^commit'); do
-            if ! git verify-commit $commit; then
-              echo "❌ Commit $commit is NOT signed!"
+          for commit in $(git rev-list origin/main..HEAD); do
+            if ! git verify-commit "$commit" &>/dev/null; then
+              echo "❌ ERROR: Commit $commit is NOT signed!"
               exit 1
             fi
             if ! git log -1 --format=%B $commit | grep -q "Signed-off-by:"; then
-              echo "❌ Commit $commit is missing a Signed-off-by line!"
+              echo "❌ ERROR: Commit $commit is missing a Signed-off-by line!"
               exit 1
             fi
           done
-      - name: Comment on PR if Unsigned Commits Exist
-        if: failure()
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: "❌ This PR contains unsigned commits. Please sign your commits before merging."
-            })
 ```
 
-### Automate Repository Compliance Audits
-To detect unwanted changes or relaxed enforcement settings, schedule periodic audits using GitHub Actions:
-```yaml
-name: Audit Branch Protections
+**Automation:**
+✅ Create **a reusable GitHub Action** for all Open Integrity repositories.  
+✅ Document **how to integrate this into repository CI/CD workflows**.  
 
+### **4. Automate Repository Compliance Audits**
+To ensure **all repositories remain compliant**, schedule automated audits.
+
+#### **Example GitHub Action: Audit Repository Signing Policies**
+```yaml
+name: "Audit GitHub Repo Signing Enforcement"
 on:
   schedule:
     - cron: "0 0 * * *" # Runs daily
 
 jobs:
-  audit-protections:
+  audit-branch-protection:
     runs-on: ubuntu-latest
     steps:
-      - name: Check Protection Settings
+      - name: Check Branch Protection Settings
         run: |
           gh api /repos/${{ github.repository }}/branches/main/protection || exit 1
+```
+
+**Automation:**
+✅ Provide a **GitHub Action template for automated policy audits**.  
+✅ Ensure **repositories stay compliant with enforced policies**.  
+
+### **Summary of Enforcement Methods**
+| Enforcement | `gh` / API | GitHub Action | Documentation |
+|------------|-----------|--------------|--------------|
+| Require signed commits | ✅ `gh api` | ✅ `enforce-signatures.yml` | ✅ |
+| Require sign-offs (`Signed-off-by`) | ❌ (Not built-in) | ✅ `enforce-signatures.yml` | ✅ |
+| Preserve commit signatures on merges | ✅ `gh api` (disable squash/rebase) | ❌ | ✅ |
+| Block GitHub web UI commits | ✅ `gh api` (branch protection) | ❌ | ✅ |
+
+---
+
+### **Next Steps**
+- [ ] Write detailed **documentation** for local and GitHub-based commit enforcement.
+- [ ] Develop **automation scripts** to apply enforcement across repositories.
+- [ ] Provide a **repository template** with pre-configured policies.
+- [ ] Implement **automated audits** to detect unsigned commits or missing sign-offs.
+
+By implementing these actions, Open Integrity repositories will **enforce cryptographic integrity, prevent signature loss, and automate compliance monitoring**.
 ```
 
 ### Improve Contributor Documentation  
