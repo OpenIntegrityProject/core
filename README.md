@@ -11,7 +11,7 @@ This repository contains the script implementations for the [Open Integrity Proj
 
 ⚠️ **IMPORTANT**: All of these current implementations are **proof-of-concept** scripts designed to validate the Open Integrity approach and explore implementation challenges. These scripts are intended for proof-of-concept evaluation only and **should not** be used in production environments without further endorsement. While they demonstrate the viability of using Git repositories as cryptographic roots of trust, they currently have significant limitations: they largely work only against local repositories, have only basic Git platform integration (currently only GitHub), and only partial implementation of Progressive Trust capabilities. Their primary value is in proving core concepts and informing the development of future production-ready tools.
 
-For the full project context, architecture details, and broader documentation, please visit the [main project repository](https://github.com/OpenIntegrityProject/docs).
+For the full project context, architecture details, and broader documentation, please visit the [Open Integrity Documentation Hub](https://github.com/OpenIntegrityProject/docs).
 
 ## Available Scripts
 
@@ -136,12 +136,12 @@ Each script includes regression tests that can be run to verify functionality. F
 
 ## Contributing
 
-Contributions are welcome! Please read the [Contributing Guidelines](https://github.com/OpenIntegrityProject/docs/blob/main/CONTRIBUTING.md) in the main project repository before submitting changes.
+Contributions are welcome! Please read the [Contributing Guidelines](https://github.com/OpenIntegrityProject/scripts/blob/main/CONTRIBUTING.md) before submitting changes.
 
 ## License
 
-This project is licensed under the BSD 2-Clause Plus Patent License - see the [LICENSE](https://github.com/OpenIntegrityProject/docs/blob/main/LICENSE) file in the main project repository for details.
+This project is licensed under the BSD 2-Clause Plus Patent License - see the [LICENSE](https://github.com/OpenIntegrityProject/scripts/blob/main/LICENSE) for details.
 
 ## More Information
 
-For more information about the Open Integrity Project, including architecture details, problem statements, and broader documentation, please visit the [main project repository](https://github.com/OpenIntegrityProject/docs).
+For more information about the Open Integrity Project, including architecture details, problem statements, and broader documentation, please visit the [Open Integrity Documentation Hub](https://github.com/OpenIntegrityProject/docs).
