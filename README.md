@@ -1,7 +1,7 @@
 # Open Integrity Scripts
-- _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/README.md`_
-- _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/README.md`_
-- _updated: 2025-02-26 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/README.md`_
+> - _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/README.md`_
+> - _updated: 2025-02-26 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 ## Script Repository Organization and Purpose
 
