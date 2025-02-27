@@ -3,6 +3,14 @@
 > - _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/README.md`_
 > - _updated: 2025-02-26 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
+## Introduction
+
+_**Cryptographic Roots of Trust for Open Source Development**_
+
+[![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)
+[![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
+
 ## Script Repository Organization and Purpose
 
 ### Main Directory Structure
