@@ -2,7 +2,7 @@
 - _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/README.md`_
 
 # Open Integrity Scripts
-_(Last updated: 2025-02-25, Christopher Allen <ChristopherA@LifeWithAlacrity.com>)_
+_(Last updated: 2025-02-26, Christopher Allen <ChristopherA@LifeWithAlacrity.com>)_
 
 ## Script Repository Organization and Purpose
 
