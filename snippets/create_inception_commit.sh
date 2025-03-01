@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
 ########################################################################
 ## Script:        create_inception_commit.sh
-## Version:       0.1.01 (2025-02-26)
-## Origin:        https://github.com/BlockchainCommons/open_integrity-git_inception_WIP
+## Version:       0.1.02 (2025-02-27)
+## Origin:        https://github.com/BlockchainCommons/open_integrity-git_inception_WIP/snippets/create_inception_commit.sh
 ## Description:   Creates a new Git repository with a properly signed empty
 ##                inception commit following Open Integrity Project standards.
 ## License:       BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html)
@@ -26,7 +26,7 @@ setopt errexit nounset pipefail localoptions warncreateglobal
 
 # Script constants
 typeset -r Script_Name=$(basename "$0")
-typeset -r Script_Version="0.1.00"
+typeset -r Script_Version="0.1.02"
 
 # Capture original arguments for help flag detection
 typeset -r Original_Args="$*"
@@ -44,115 +44,311 @@ typeset -r Exit_Status_Dependency=127
 typeset -r Default_Repo_Name="new_open_integrity_repo"
 typeset Repo_Path="$Default_Repo_Name"
 
+# Predefined boolean constants
+typeset -r TRUE=1
+typeset -r FALSE=0
+
 #----------------------------------------------------------------------#
-# Function: show_Usage
+# Function: z_Convert_Path_To_Relative
 #----------------------------------------------------------------------#
 # Description:
-#   Displays usage information for the script
+#   Converts an absolute path into a relative path based on current directory
 # Parameters:
-#   $1 - Optional error flag (if not provided, exits with success)
+#   $1 - Absolute path to convert
 # Returns:
-#   Exit_Status_Success when called with no error flag
-#   Exit_Status_Usage when called with error flag
+#   Prints relative path to stdout
 #----------------------------------------------------------------------#
-show_Usage() {
-    print "$Script_Name v$Script_Version - Create an Open Integrity signed inception commit"
-    print ""
-    print "Usage: $Script_Name [-r|--repo <directory>]"
-    print "Creates a new Git repository with a properly signed inception commit."
-    print ""
-    print "Options:"
-    print "  -r, --repo <directory>  Specify repository directory path"
-    print "                          (default: $Default_Repo_Name)"
-    print "  -h, --help              Show this help message"
-    print ""
-    print "Examples:"
-    print "  $Script_Name                      Create with default name"
-    print "  $Script_Name --repo my_repo       Create with custom name"
-    print "  $Script_Name --repo /path/to/repo Create with full path"
-    
-    # Exit with success for help, error for invalid usage
-    if [[ "${1:-}" == "error" ]]; then
-        exit $Exit_Status_Usage
-    else
-        exit $Exit_Status_Success
-    fi
+function z_Convert_Path_To_Relative() {
+   typeset pathAbsolute="${1:A}"   # Canonical absolute path
+   typeset pwdAbsolute="${PWD:A}"  # Canonical current directory
+   
+   # If it's exactly the current dir, just return "."
+   if [[ "$pathAbsolute" == "$pwdAbsolute" ]]; then
+       print "."
+       return
+   fi
+
+   # If it's a sub-path of the current dir, prefix with "./"
+   if [[ "$pathAbsolute" == "$pwdAbsolute/"* ]]; then
+       print "./${pathAbsolute#$pwdAbsolute/}"
+       return
+   fi
+   
+   # Otherwise, attempt to find a common ancestor
+   typeset pathCommon="$pwdAbsolute"
+   typeset pathResult=""
+   
+   # Step upwards until we find shared directory
+   while [[ "$pathAbsolute" != "$pathCommon"* ]]; do
+       pathResult="../$pathResult"
+       pathCommon="${pathCommon:h}"
+   done
+   
+   # If pathCommon is non-empty, remove that portion
+   if [[ -n "$pathCommon" ]]; then
+       typeset pathRelative="${pathAbsolute#$pathCommon/}"
+       if [[ -n "$pathRelative" ]]; then
+           print "${pathResult}${pathRelative}"
+       else
+           # If removing pathCommon leaves nothing, remove trailing slash
+           print "${pathResult%/}"
+       fi
+   else
+       # Fallback: no common ancestor => remain absolute
+       print "$pathAbsolute"
+   fi
 }
 
 #----------------------------------------------------------------------#
-# Function: z_Check_Dependencies
+# Function: z_Convert_Path_To_Relative
 #----------------------------------------------------------------------#
 # Description:
-#   Verifies required external commands are available
+#   Converts an absolute path into a relative path based on current directory
 # Parameters:
-#   $@ - List of required commands
+#   $1 - Absolute path to convert
 # Returns:
-#   Exit_Status_Success if all dependencies are met
-#   Exit_Status_Dependency if any required command is missing
+#   Prints relative path to stdout
 #----------------------------------------------------------------------#
-z_Check_Dependencies() {
-    typeset -a required_commands=("$@")
-    typeset cmd
+function z_Convert_Path_To_Relative() {
+   typeset pathAbsolute="${1:A}"   # Canonical absolute path
+   typeset pwdAbsolute="${PWD:A}"  # Canonical current directory
+   
+   # If it's exactly the current dir, just return "."
+   if [[ "$pathAbsolute" == "$pwdAbsolute" ]]; then
+       print "."
+       return
+   fi
 
-    for cmd in "${required_commands[@]}"; do
-        if ! command -v "$cmd" >/dev/null 2>&1; then
-            print -u2 "Error: Required command '$cmd' not found"
-            return $Exit_Status_Dependency
+   # If it's a sub-path of the current dir, prefix with "./"
+   if [[ "$pathAbsolute" == "$pwdAbsolute/"* ]]; then
+       print "./${pathAbsolute#$pwdAbsolute/}"
+       return
+   fi
+   
+   # Otherwise, attempt to find a common ancestor
+   typeset pathCommon="$pwdAbsolute"
+   typeset pathResult=""
+   
+   # Step upwards until we find shared directory
+   while [[ "$pathAbsolute" != "$pathCommon"* ]]; do
+       pathResult="../$pathResult"
+       pathCommon="${pathCommon:h}"
+   done
+   
+   # If pathCommon is non-empty, remove that portion
+   if [[ -n "$pathCommon" ]]; then
+       typeset pathRelative="${pathAbsolute#$pathCommon/}"
+       if [[ -n "$pathRelative" ]]; then
+           print "${pathResult}${pathRelative}"
+       else
+           # If removing pathCommon leaves nothing, remove trailing slash
+           print "${pathResult%/}"
+       fi
+   else
+       # Fallback: no common ancestor => remain absolute
+       print "$pathAbsolute"
+   fi
+}
+
+#----------------------------------------------------------------------#
+# Function: z_Report_Error
+#----------------------------------------------------------------------#
+# Description:
+#   Centralized error reporting with consistent formatting
+# Parameters:
+#   $1 - Error message
+#   $2 - Optional exit code (defaults to Exit_Status_General)
+# Returns:
+#   Prints error to stderr
+#   Returns specified or default error code
+#----------------------------------------------------------------------#
+function z_Report_Error() {
+   typeset ErrorMessage="$1"
+   typeset -i ErrorCode="${2:-$Exit_Status_General}"
+   
+   # Consistent error formatting
+   print -u2 "❌ ERROR: $ErrorMessage"
+   return $ErrorCode
+}
+
+#----------------------------------------------------------------------#
+# Function: oi_Extract_Ssh_Key_Fingerprint
+#----------------------------------------------------------------------#
+# Description:
+#   Extracts the SSH key fingerprint using Zsh-native parsing
+# Parameters:
+#   $1 - Path to SSH key file
+# Returns:
+#   Prints the fingerprint to stdout
+#   Exit_Status_Success on success
+#   Exit_Status_Config on extraction failure
+#----------------------------------------------------------------------#
+function oi_Extract_Ssh_Key_Fingerprint() {
+   typeset KeyPath="$1"
+   typeset -a FingerprintParts
+   typeset Fingerprint
+
+   # Capture ssh-keygen output
+   typeset SshKeygenOutput
+   SshKeygenOutput=$(ssh-keygen -E sha256 -lf "$KeyPath" 2>/dev/null)
+
+   # Split output into parts using Zsh array splitting
+   FingerprintParts=(${(s: :)SshKeygenOutput})
+
+   # Validate output
+   if (( ${#FingerprintParts} < 2 )); then
+       z_Report_Error "Could not extract key fingerprint"
+       return $Exit_Status_Config
+   fi
+
+   # Extract fingerprint with robust parsing
+   case ${#FingerprintParts} in
+       2)
+           # Standard output: "2048 SHA256:abcdef user@host (RSA)"
+           Fingerprint="${FingerprintParts[2]}"
+           ;;
+       3)
+           # Some versions might have different formatting
+           Fingerprint="${FingerprintParts[2]}"
+           ;;
+       *)
+           # Fallback to last element
+           Fingerprint="${FingerprintParts[-2]}"
+           ;;
+   esac
+
+   # Print and return
+   print -- "$Fingerprint"
+   return $Exit_Status_Success
+}
+
+#----------------------------------------------------------------------#
+# Function: oi_Get_First_Commit_Hash
+#----------------------------------------------------------------------#
+# Description:
+#   Retrieves the hash of the first commit in a Git repository
+# Parameters:
+#   $1 - Repository path
+# Returns:
+#   Prints first commit hash to stdout
+#   Exit_Status_Success if hash found
+#   Exit_Status_Git_Failure if no commits exist
+#----------------------------------------------------------------------#
+function oi_Get_First_Commit_Hash() {
+   typeset RepoPath="$1"
+   typeset -a CommitHashes
+
+   # Zsh-native array splitting of commit hashes
+   CommitHashes=($(git -C "$RepoPath" rev-list --max-parents=0 HEAD 2>/dev/null))
+
+   # Robust array length checking
+   if (( ${#CommitHashes} == 0 )); then
+       z_Report_Error "No initial commit found in repository" $Exit_Status_Git_Failure
+       return $Exit_Status_Git_Failure
+   fi
+
+   # Always return the first commit hash
+   print -- "${CommitHashes[1]}"
+   return $Exit_Status_Success
+}
+
+#----------------------------------------------------------------------#
+# Function: oi_Verify_Commit_Signature
+#----------------------------------------------------------------------#
+# Description:
+#   Verifies the signature of a Git commit
+# Parameters:
+#   $1 - Repository path
+#   $2 - Commit hash
+# Returns:
+#   Exit_Status_Success if signature valid
+#   Exit_Status_Git_Failure if verification fails
+#----------------------------------------------------------------------#
+function oi_Verify_Commit_Signature() {
+    typeset RepoPath="$1"
+    typeset CommitHash="$2"
+    typeset -a VerifyLines
+    typeset -i SignatureValid=$FALSE
+    typeset line
+
+    # Capture verify output as array, preserving line breaks
+    VerifyLines=(${(f)"$(git -C "$RepoPath" verify-commit "$CommitHash" 2>&1)"})
+
+    # Zsh-native pattern matching for signature verification
+    for line in $VerifyLines; do
+        if [[ $line == *"Good"*"signature"* ]]; then
+            SignatureValid=$TRUE
+            break
         fi
     done
 
+    # Error handling with Zsh-native conditionals
+    if (( SignatureValid == FALSE )); then
+        z_Report_Error "Signature verification failed for commit $CommitHash"
+        (( ${#VerifyLines} > 0 )) && print -u2 "${VerifyLines[1]}"
+        return $Exit_Status_Git_Failure
+    fi
+
+    # Output verification details
+    print "✅ Commit signature verified successfully:"
+    printf '%s\n' "${VerifyLines[@]}" | grep -E "Good.*signature"
+
     return $Exit_Status_Success
 }
 
 #----------------------------------------------------------------------#
-# Function: z_Ensure_Parent_Path_Exists
+# Function: oi_Get_Git_Config
 #----------------------------------------------------------------------#
 # Description:
-#   Validates that the parent directory exists and is writable
-#   Creates parent directories if needed
+#   Retrieves Git configuration values with robust error handling
 # Parameters:
-#   $1 - Path to check/create
+#   $1 - Configuration key to retrieve
 # Returns:
-#   Exit_Status_Success if path is valid or created successfully
-#   Exit_Status_IO if directory doesn't exist or isn't writable
+#   Prints configuration value to stdout
+#   Exit_Status_Success if value found
+#   Exit_Status_Config if configuration not set
 #----------------------------------------------------------------------#
-z_Ensure_Parent_Path_Exists() {
-    typeset RepoPath="$1"
-    typeset ParentPath
+function oi_Get_Git_Config() {
+   typeset ConfigKey="$1"
+   typeset ConfigValue
 
-    # Get parent directory path
-    if [[ "$RepoPath" =~ ^/ ]]; then
-        # Absolute path
-        ParentPath="${RepoPath:h}"
-    else
-        # Relative path
-        if [[ "$RepoPath" == */* ]]; then
-            # Has directory structure
-            ParentPath="$(pwd)/${RepoPath:h}"
-        else
-            # Just filename, use current directory
-            ParentPath="$(pwd)"
-        fi
-    fi
+   # Use parameter expansion for config retrieval
+   ConfigValue=${$(git config "$ConfigKey" 2>/dev/null):-}
 
-    # Check if parent directory exists
-    if [[ ! -d "$ParentPath" ]]; then
-        # Try to create parent directory
-        mkdir -p "$ParentPath" 2>/dev/null || {
-            print -u2 "Error: Parent directory does not exist and could not be created: $ParentPath"
-            print -u2 "Create the parent directory first or use a different path."
-            return $Exit_Status_IO
-        }
-        print "Created parent directory: $ParentPath"
-    fi
+   if [[ -z "$ConfigValue" ]]; then
+       z_Report_Error "Git configuration '$ConfigKey' not set"
+       return $Exit_Status_Config
+   fi
 
-    # Check if parent directory is writable
-    if [[ ! -w "$ParentPath" ]]; then
-        print -u2 "Error: Parent directory is not writable: $ParentPath"
-        return $Exit_Status_IO
-    fi
+   print -- "$ConfigValue"
+   return $Exit_Status_Success
+}
 
-    return $Exit_Status_Success
+#----------------------------------------------------------------------#
+# Function: oi_Get_Repo_DID
+#----------------------------------------------------------------------#
+# Description:
+#   Gets the DID for a repository based on its inception commit
+# Parameters:
+#   $1 - Repository path
+# Returns:
+#   Prints DID in the format "did:repo:<hash>"
+#   Exit_Status_Success if DID is found
+#   Various error codes on failure
+#----------------------------------------------------------------------#
+function oi_Get_Repo_DID() {
+   typeset RepoPath="$1"
+   typeset CommitHash
+
+   # Verify repository is valid
+   oi_Assure_Functional_Git_Repo "$RepoPath" || return $?
+
+   # Get inception commit hash
+   CommitHash=$(oi_Get_First_Commit_Hash "$RepoPath") || return $?
+
+   # Format and return DID
+   print "did:repo:$CommitHash"
+   return $Exit_Status_Success
 }
 
 #----------------------------------------------------------------------#
@@ -169,90 +365,171 @@ z_Ensure_Parent_Path_Exists() {
 #   git command
 #----------------------------------------------------------------------#
 oi_Assure_Functional_Git_Repo() {
-    typeset RepoPath="$1"
+   typeset RepoPath="$1"
 
-    # Verify path exists and is a directory
-    if [[ ! -d "$RepoPath" ]]; then
-        print -u2 "Error: Directory does not exist: $RepoPath"
-        return $Exit_Status_IO
-    fi
+   # Verify path exists and is a directory
+   if [[ ! -d "$RepoPath" ]]; then
+       z_Report_Error "Directory does not exist: $RepoPath" $Exit_Status_IO
+       return $Exit_Status_IO
+   fi
 
-    # Verify path is a Git repository
-    if ! git -C "$RepoPath" rev-parse --git-dir >/dev/null 2>&1; then
-        print -u2 "Error: Not a Git repository: $RepoPath"
-        return $Exit_Status_Git_Failure
-    fi
+   # Verify path is a Git repository
+   if ! git -C "$RepoPath" rev-parse --git-dir >/dev/null 2>&1; then
+       z_Report_Error "Not a Git repository: $RepoPath" $Exit_Status_Git_Failure
+       return $Exit_Status_Git_Failure
+   fi
 
-    return $Exit_Status_Success
+   return $Exit_Status_Success
 }
 
 #----------------------------------------------------------------------#
-# Function: oi_Get_First_Commit_Hash
+# Function: show_Usage
 #----------------------------------------------------------------------#
 # Description:
-#   Retrieves the hash of the first commit (inception commit) from a Git repository
+#   Displays usage information for the script
 # Parameters:
-#   $1 - Repository directory path
+#   $1 - Optional error flag (if not provided, exits with success)
 # Returns:
-#   Prints commit hash to stdout on success
-#   Exit_Status_Success if hash is found
-#   Exit_Status_Git_Failure if no commits exist or Git operation fails
-# Dependencies:
-#   Requires git command
+#   Exit_Status_Success when called with no error flag
+#   Exit_Status_Usage when called with error flag
 #----------------------------------------------------------------------#
-oi_Get_First_Commit_Hash() {
-    typeset RepoPath="$1"
-    typeset CommitHash
-
-    # Verify path is a git repository
-    if ! git -C "$RepoPath" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-        print -u2 "Error: Not a Git repository at '$RepoPath'"
-        return $Exit_Status_Git_Failure
-    fi
-
-    # Get the first commit hash
-    CommitHash=$(git -C "$RepoPath" rev-list --max-parents=0 HEAD 2>/dev/null)
-
-    if [[ -z "$CommitHash" ]]; then
-        print -u2 "Error: No initial commit found in repository"
-        return $Exit_Status_Git_Failure
-    fi
-
-    print -- "$CommitHash"
-    return $Exit_Status_Success
+show_Usage() {
+   print "$Script_Name v$Script_Version - Create an Open Integrity signed inception commit"
+   print ""
+   print "Usage: $Script_Name [-r|--repo <directory>]"
+   print "Creates a new Git repository with a properly signed inception commit."
+   print ""
+   print "Options:"
+   print "  -r, --repo <directory>  Specify repository directory path"
+   print "                          (default: $Default_Repo_Name)"
+   print "  -h, --help              Show this help message"
+   print ""
+   print "Examples:"
+   print "  $Script_Name                      Create with default name"
+   print "  $Script_Name --repo my_repo       Create with custom name"
+   print "  $Script_Name --repo /path/to/repo Create with full path"
+   
+   # Exit with success for help, error for invalid usage
+   if [[ "${1:-}" == "error" ]]; then
+       exit $Exit_Status_Usage
+   else
+       exit $Exit_Status_Success
+   fi
 }
 
 #----------------------------------------------------------------------#
-# Function: oi_Verify_Commit_Signature
+# Function: z_Check_Dependencies
 #----------------------------------------------------------------------#
 # Description:
-#   Verifies that a commit is properly signed with SSH key
+#   Verifies required external commands are available
 # Parameters:
-#   $1 - Repository directory path
-#   $2 - Commit hash to verify
+#   $@ - List of required commands
 # Returns:
-#   Exit_Status_Success if signature is valid
-#   Exit_Status_Git_Failure if signature verification fails
-# Dependencies:
-#   git command
+#   Exit_Status_Success if all dependencies are met
+#   Exit_Status_Dependency if any required command is missing
 #----------------------------------------------------------------------#
-oi_Verify_Commit_Signature() {
-    typeset RepoPath="$1"
-    typeset CommitHash="$2"
-    typeset VerifyOutput
+z_Check_Dependencies() {
+   typeset -a required_commands=("$@")
+   typeset cmd
 
-    VerifyOutput=$(git -C "$RepoPath" verify-commit "$CommitHash" 2>&1)
+   for cmd in "${required_commands[@]}"; do
+       if ! command -v "$cmd" >/dev/null 2>&1; then
+           z_Report_Error "Required command '$cmd' not found" $Exit_Status_Dependency
+           return $Exit_Status_Dependency
+       fi
+   done
 
-    if [[ $? -ne 0 ]]; then
-        print -u2 "Error: Signature verification failed for commit $CommitHash"
-        print -u2 "$VerifyOutput"
-        return $Exit_Status_Git_Failure
-    fi
+   return $Exit_Status_Success
+}
 
-    print "✅ Commit signature verified successfully:"
-    print "$VerifyOutput" | grep -E "Good.*signature"
+#----------------------------------------------------------------------#
+# Function: z_Ensure_Parent_Path_Exists
+#----------------------------------------------------------------------#
+# Description:
+#   Validates that the parent directory exists and is writable
+#   Creates parent directories if needed
+# Parameters:
+#   $1 - Path to check/create
+# Returns:
+#   Exit_Status_Success if path is valid or created successfully
+#   Exit_Status_IO if directory doesn't exist or isn't writable
+#----------------------------------------------------------------------#
+z_Ensure_Parent_Path_Exists() {
+   typeset RepoPath="$1"
+   typeset ParentPath
 
-    return $Exit_Status_Success
+   # Get parent directory path
+   if [[ "$RepoPath" =~ ^/ ]]; then
+       # Absolute path
+       ParentPath="${RepoPath:h}"
+   else
+       # Relative path
+       if [[ "$RepoPath" == */* ]]; then
+           # Has directory structure
+           ParentPath="$(pwd)/${RepoPath:h}"
+       else
+           # Just filename, use current directory
+           ParentPath="$(pwd)"
+       fi
+   fi
+
+   # Check if parent directory exists
+   if [[ ! -d "$ParentPath" ]]; then
+       # Try to create parent directory
+       mkdir -p "$ParentPath" 2>/dev/null || {
+           z_Report_Error "Parent directory does not exist and could not be created: $ParentPath" $Exit_Status_IO
+           return $Exit_Status_IO
+       }
+       print "Created parent directory: $ParentPath"
+   fi
+
+   # Check if parent directory is writable
+   if [[ ! -w "$ParentPath" ]]; then
+       z_Report_Error "Parent directory is not writable: $ParentPath" $Exit_Status_IO
+       return $Exit_Status_IO
+   fi
+
+   return $Exit_Status_Success
+}
+
+#----------------------------------------------------------------------#
+# Function: parse_Arguments
+#----------------------------------------------------------------------#
+# Description:
+#   Processes command line parameters
+# Parameters:
+#   $@ - Command line arguments
+# Returns:
+#   Sets Repo_Path variable
+#   Exit_Status_Success if parameters are valid
+#   Calls show_Usage() for invalid parameters
+#----------------------------------------------------------------------#
+function parse_Arguments() {
+   while (( $# > 0 )); do
+       case "$1" in
+           -r|--repo)
+               if (( $# < 2 )); then
+                   z_Report_Error "Option $1 requires an argument" $Exit_Status_Usage
+                   show_Usage "error"
+               fi
+               Repo_Path="$2"
+               shift 2
+               ;;
+           -h|--help)
+               show_Usage
+               ;;
+           -*)
+               z_Report_Error "Unknown option: $1" $Exit_Status_Usage
+               show_Usage "error"
+               ;;
+           *)
+               z_Report_Error "Unexpected argument: $1" $Exit_Status_Usage
+               show_Usage "error"
+               ;;
+       esac
+   done
+
+   return $Exit_Status_Success
 }
 
 #----------------------------------------------------------------------#
@@ -268,77 +545,36 @@ oi_Verify_Commit_Signature() {
 # Dependencies:
 #   git command
 #----------------------------------------------------------------------#
-oi_Verify_Git_Config() {
-    # Check for required Git config settings
-    typeset Username SigningKey EmailAddress Format CommitSign
+function oi_Verify_Git_Config() {
+   # Check for required Git config settings
+   typeset Username SigningKey EmailAddress Format CommitSign
 
-    Username=$(git config user.name 2>/dev/null) || {
-        print -u2 "Error: Git user.name not configured."
-        print -u2 "Run: git config --global user.name \"@yourusername\""
-        return $Exit_Status_Config
-    }
+   Username=$(oi_Get_Git_Config user.name) || return $?
+   EmailAddress=$(oi_Get_Git_Config user.email) || return $?
+   SigningKey=$(oi_Get_Git_Config user.signingkey) || return $?
 
-    EmailAddress=$(git config user.email 2>/dev/null) || {
-        print -u2 "Error: Git user.email not configured."
-        print -u2 "Run: git config --global user.email \"your.email@example.com\""
-        return $Exit_Status_Config
-    }
+   # Check SSH key exists and is readable
+   if [[ ! -r "$SigningKey" ]]; then
+       z_Report_Error "SSH signing key not found or not readable: $SigningKey"
+       return $Exit_Status_Config
+   fi
 
-    SigningKey=$(git config user.signingkey 2>/dev/null) || {
-        print -u2 "Error: Git user.signingkey not configured."
-        print -u2 "Run: git config --global user.signingkey ~/.ssh/id_ed25519"
-        return $Exit_Status_Config
-    }
+   # Verify gpg.format is set to ssh
+   Format=$(git config gpg.format 2>/dev/null)
+   if [[ "$Format" != "ssh" ]]; then
+       z_Report_Error "Git gpg.format not set to 'ssh'."
+       print -u2 "Run: git config --global gpg.format ssh"
+       return $Exit_Status_Config
+   fi
 
-    # Check SSH key exists and is readable
-    if [[ ! -r "$SigningKey" ]]; then
-        print -u2 "Error: SSH signing key not found or not readable: $SigningKey"
-        return $Exit_Status_Config
-    fi
+   # Verify commit.gpgSign is true
+   CommitSign=$(git config commit.gpgsign 2>/dev/null)
+   if [[ "$CommitSign" != "true" ]]; then
+       print "Warning: Git commit.gpgsign not set to 'true'."
+       print "For automatic signing, run: git config --global commit.gpgsign true"
+   fi
 
-    # Verify gpg.format is set to ssh
-    Format=$(git config gpg.format 2>/dev/null)
-    if [[ "$Format" != "ssh" ]]; then
-        print -u2 "Error: Git gpg.format not set to 'ssh'."
-        print -u2 "Run: git config --global gpg.format ssh"
-        return $Exit_Status_Config
-    fi
-
-    # Verify commit.gpgSign is true
-    CommitSign=$(git config commit.gpgsign 2>/dev/null)
-    if [[ "$CommitSign" != "true" ]]; then
-        print -u2 "Warning: Git commit.gpgsign not set to 'true'."
-        print -u2 "For automatic signing, run: git config --global commit.gpgsign true"
-    fi
-
-    return $Exit_Status_Success
-}
-
-#----------------------------------------------------------------------#
-# Function: oi_Get_Repo_DID
-#----------------------------------------------------------------------#
-# Description:
-#   Gets the DID for a repository based on its inception commit
-# Parameters:
-#   $1 - Repository path
-# Returns:
-#   Prints DID in the format "did:repo:<hash>"
-#   Exit_Status_Success if DID is found
-#   Various error codes on failure
-#----------------------------------------------------------------------#
-oi_Get_Repo_DID() {
-    typeset RepoPath="$1"
-    typeset CommitHash
-
-    # Verify repository is valid
-    oi_Assure_Functional_Git_Repo "$RepoPath" || return $?
-
-    # Get inception commit hash
-    CommitHash=$(oi_Get_First_Commit_Hash "$RepoPath") || return $?
-
-    # Format and return DID
-    print "did:repo:$CommitHash"
-    return $Exit_Status_Success
+   return $Exit_Status_Success
 }
 
 #----------------------------------------------------------------------#
@@ -356,7 +592,7 @@ oi_Get_Repo_DID() {
 # Dependencies:
 #   git and ssh-keygen commands
 #----------------------------------------------------------------------#
-oi_Create_Inception_Commit() {
+function oi_Create_Inception_Commit() {
     typeset RepoPath="$1"
     typeset SigningKey UserName UserEmail AuthorDate CommitterName
 
@@ -367,30 +603,32 @@ oi_Create_Inception_Commit() {
 
     # Check if repository already exists
     if [[ -d "$RepoPath/.git" ]]; then
-        print -u2 "❌ Repository already exists at $RepoPath"
+        z_Report_Error "Repository already exists at $RepoPath" $Exit_Status_IO
         return $Exit_Status_IO
     fi
 
     # Create repository directory
     if ! mkdir -p "$RepoPath"; then
-        print -u2 "❌ Failed to create directory: $RepoPath"
+        z_Report_Error "Failed to create directory: $RepoPath" $Exit_Status_IO
         return $Exit_Status_IO
     fi
 
     # Initialize Git repository
     if ! git -C "$RepoPath" init > /dev/null; then
-        print -u2 "❌ Failed to initialize Git repository"
+        z_Report_Error "Failed to initialize Git repository" $Exit_Status_Git_Failure
         return $Exit_Status_Git_Failure
     fi
 
     # Get Git configuration values
-    SigningKey=$(git config user.signingkey)
-    UserName=$(git config user.name)
-    UserEmail=$(git config user.email)
+    SigningKey=$(oi_Get_Git_Config user.signingkey) || return $?
+    UserName=$(oi_Get_Git_Config user.name) || return $?
+    UserEmail=$(oi_Get_Git_Config user.email) || return $?
+    
+    # Use system date for UTC timestamp
     AuthorDate=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
     # Get SSH key fingerprint for committer name
-    CommitterName=$(ssh-keygen -E sha256 -lf "$SigningKey" | awk '{print $2}')
+    CommitterName=$(oi_Extract_Ssh_Key_Fingerprint "$SigningKey") || return $?
 
     # Create the inception commit
     if ! GIT_AUTHOR_NAME="$UserName" GIT_AUTHOR_EMAIL="$UserEmail" \
@@ -400,51 +638,11 @@ oi_Create_Inception_Commit() {
          commit --allow-empty --no-edit --gpg-sign \
          -m "Initialize repository and establish a SHA-1 root of trust" \
          -m "This key also certifies future commits' integrity and origin. Other keys can be authorized to add additional commits via the creation of a ./.repo/config/verification/allowed_commit_signers file. This file must initially be signed by this repo's inception key, granting these keys the authority to add future commits to this repo, including the potential to remove the authority of this inception key for future commits. Once established, any changes to ./.repo/config/verification/allowed_commit_signers must be authorized by one of the previously approved signers." --signoff; then
-        print -u2 "❌ Failed to create inception commit"
+        z_Report_Error "Failed to create inception commit" $Exit_Status_Git_Failure
         return $Exit_Status_Git_Failure
     fi
 
-    print "✅ Repository initialized with signed inception commit at $RepoPath"
-
-    return $Exit_Status_Success
-}
-
-#----------------------------------------------------------------------#
-# Function: parse_Arguments
-#----------------------------------------------------------------------#
-# Description:
-#   Processes command line parameters
-# Parameters:
-#   $@ - Command line arguments
-# Returns:
-#   Sets Repo_Path variable
-#   Exit_Status_Success if parameters are valid
-#   Calls show_Usage() for invalid parameters
-#----------------------------------------------------------------------#
-parse_Arguments() {
-    while (( $# > 0 )); do
-        case "$1" in
-            -r|--repo)
-                if (( $# < 2 )); then
-                    print -u2 "Error: Option $1 requires an argument"
-                    show_Usage "error"
-                fi
-                Repo_Path="$2"
-                shift 2
-                ;;
-            -h|--help)
-                show_Usage
-                ;;
-            -*)
-                print -u2 "Error: Unknown option: $1"
-                show_Usage "error"
-                ;;
-            *)
-                print -u2 "Error: Unexpected argument: $1"
-                show_Usage "error"
-                ;;
-        esac
-    done
+    print "✅ Repository initialized with signed inception commit at $(z_Convert_Path_To_Relative "$RepoPath")"
 
     return $Exit_Status_Success
 }
@@ -460,31 +658,31 @@ parse_Arguments() {
 #   Exit_Status_Success on success
 #   Various error codes on failure
 #----------------------------------------------------------------------#
-core_Logic() {
-    typeset CommitHash
+function core_Logic() {
+   typeset CommitHash
 
-    # Validate parent directory exists and is writable
-    z_Ensure_Parent_Path_Exists "$Repo_Path" || return $?
+   # Validate parent directory exists and is writable
+   z_Ensure_Parent_Path_Exists "$Repo_Path" || return $?
 
-    # Create repository with inception commit
-    oi_Create_Inception_Commit "$Repo_Path" || return $?
+   # Create repository with inception commit
+   oi_Create_Inception_Commit "$Repo_Path" || return $?
 
-    # Verify repository is functional
-    oi_Assure_Functional_Git_Repo "$Repo_Path" || return $?
+   # Verify repository is functional
+   oi_Assure_Functional_Git_Repo "$Repo_Path" || return $?
 
-    # Get the hash of the inception commit
-    CommitHash=$(oi_Get_First_Commit_Hash "$Repo_Path") || return $?
-    print "Inception commit: $CommitHash"
+   # Get the hash of the inception commit
+   CommitHash=$(oi_Get_First_Commit_Hash "$Repo_Path") || return $?
+   print "Inception commit: $CommitHash"
 
-    # Verify commit signature
-    oi_Verify_Commit_Signature "$Repo_Path" "$CommitHash" || return $?
+   # Verify commit signature
+   oi_Verify_Commit_Signature "$Repo_Path" "$CommitHash" || return $?
 
-    # Get repository DID
-    typeset Repo_DID
-    Repo_DID=$(oi_Get_Repo_DID "$Repo_Path") || return $?
-    print "Repository DID: $Repo_DID"
+   # Get repository DID
+   typeset Repo_DID
+   Repo_DID=$(oi_Get_Repo_DID "$Repo_Path") || return $?
+   print "Repository DID: $Repo_DID"
 
-    return $Exit_Status_Success
+   return $Exit_Status_Success
 }
 
 #----------------------------------------------------------------------#
@@ -498,31 +696,30 @@ core_Logic() {
 #   Exit_Status_Success on success
 #   Various error codes on failure
 #----------------------------------------------------------------------#
-main() {
-    # Check for dependencies
-    z_Check_Dependencies "git" "ssh-keygen" "date" "awk" || exit $?
+function main() {
+   # Check for dependencies
+   z_Check_Dependencies "git" "ssh-keygen" "awk" || exit $?
 
-    # Parse command line parameters
-    parse_Arguments "$@" || exit $?
+   # Parse command line parameters
+   parse_Arguments "$@" || exit $?
 
-    # Verify Git configuration
-    oi_Verify_Git_Config || exit $?
+   # Verify Git configuration
+   oi_Verify_Git_Config || exit $?
 
-    # Execute core logic
-    core_Logic || exit $?
+   # Execute core logic
+   core_Logic || exit $?
 
-    return $Exit_Status_Success
+   return $Exit_Status_Success
 }
 
 # Script Entry Point
 
 # Execute main() only if this script is being run directly (not sourced).
 # Zsh-specific syntax: ${(%):-%N} expands to the script name when run directly,
-# but to the function name when sourced. This is different from Bash's
-# equivalent test: [[ "${BASH_SOURCE[0]}" == "${0}" ]]
+# but to the function name when sourced.
 if [[ "${(%):-%N}" == "$0" ]]; then
-    main "$@"
-    exit $?  # Explicitly propagate the exit status from main
+   main "$@"
+   exit $?  # Explicitly propagate the exit status from main
 fi
 
 ########################################################################
