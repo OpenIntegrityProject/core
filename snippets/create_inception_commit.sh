@@ -179,43 +179,42 @@ function z_Report_Error() {
 # Parameters:
 #   $1 - Path to SSH key file
 # Returns:
-#   Prints the fingerprint to stdout
+#   Prints the fingerprint to stdout in SHA256 format
 #   Exit_Status_Success on success
 #   Exit_Status_Config on extraction failure
 #----------------------------------------------------------------------#
 function oi_Extract_Ssh_Key_Fingerprint() {
    typeset KeyPath="$1"
-   typeset -a FingerprintParts
+   typeset SshKeygenOutput
    typeset Fingerprint
+   typeset -a OutputParts
+   typeset -a match mbegin mend  # Required for Zsh regex capturing
 
    # Capture ssh-keygen output
-   typeset SshKeygenOutput
    SshKeygenOutput=$(ssh-keygen -E sha256 -lf "$KeyPath" 2>/dev/null)
 
-   # Split output into parts using Zsh array splitting
-   FingerprintParts=(${(s: :)SshKeygenOutput})
-
-   # Validate output
-   if (( ${#FingerprintParts} < 2 )); then
-       z_Report_Error "Could not extract key fingerprint"
+   # Exit on failure to get output
+   if [[ -z "$SshKeygenOutput" ]]; then
+       z_Report_Error "Failed to get fingerprint for key: $KeyPath"
        return $Exit_Status_Config
    fi
 
-   # Extract fingerprint with robust parsing
-   case ${#FingerprintParts} in
-       2)
-           # Standard output: "2048 SHA256:abcdef user@host (RSA)"
-           Fingerprint="${FingerprintParts[2]}"
-           ;;
-       3)
-           # Some versions might have different formatting
-           Fingerprint="${FingerprintParts[2]}"
-           ;;
-       *)
-           # Fallback to last element
-           Fingerprint="${FingerprintParts[-2]}"
-           ;;
-   esac
+   # Split output into parts using Zsh array splitting
+   OutputParts=(${(s: :)SshKeygenOutput})
+
+   # Second part should be the SHA256 fingerprint
+   if (( ${#OutputParts} >= 2 )); then
+       Fingerprint="${OutputParts[2]}"
+   else
+       z_Report_Error "Unexpected ssh-keygen output format: $SshKeygenOutput"
+       return $Exit_Status_Config
+   fi
+
+   # Ensure the fingerprint is in SHA256: format
+   if [[ ! "$Fingerprint" =~ ^SHA256: ]]; then
+       z_Report_Error "Invalid fingerprint format: $Fingerprint"
+       return $Exit_Status_Config
+   fi
 
    # Print and return
    print -- "$Fingerprint"
