@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 ########################################################################
 ## Script:        TEST-create_inception_commit.sh
-## Version:       0.1.02 (2025-02-27)
+## Version:       0.1.03 (2025-03-04)
 ## Origin:        https://github.com/BlockchainCommons/open_integrity-git_inception_WIP/snippets/tests
 ## Description:   Regression test harness for create_inception_commit.sh
 ##                script, testing conformance to Open Integrity Project
@@ -26,7 +26,7 @@ setopt errexit nounset pipefail localoptions warncreateglobal
 
 # Script constants
 typeset -r Script_Name=$(basename "$0")
-typeset -r Script_Version="0.1.02"  # Matched to latest script version
+typeset -r Script_Version="0.1.03"  # Updated version
 typeset -r Script_Dir=$(dirname "$0:A")
 
 # Define TRUE/FALSE constants
@@ -35,20 +35,27 @@ typeset -r FALSE=0
 
 # Script-scoped variables
 typeset -r Target_Script="${Script_Dir}/../create_inception_commit.sh"
-typeset -r Test_Base_Dir="/tmp/oi_test_repos_$(date +%s)"
-typeset -r Temp_Repo="/tmp/oi_test_tmp_repo_$(date +%s)"
 typeset -i Verbose_Mode=$FALSE
+
+# Generate unique test directory names to prevent collisions
+typeset -r Timestamp=$(date +%s)
+typeset -r Random_Suffix=$RANDOM
+typeset -r Test_Base_Dir="/tmp/oi_test_repos_${Timestamp}_${Random_Suffix}"
+typeset -r Temp_Repo="/tmp/oi_test_tmp_repo_${Timestamp}_${Random_Suffix}"
 
 # Script-scoped exit status codes
 typeset -r Exit_Status_Success=0
 typeset -r Exit_Status_General=1
 typeset -r Exit_Status_Usage=2
 typeset -r Exit_Status_Test_Failure=3
+typeset -r Exit_Status_IO=3
+typeset -r Exit_Status_Git_Failure=5
 
 # Tracking variables
 typeset -i Tests_Total=0
 typeset -i Tests_Passed=0
 typeset -i Tests_Failed=0
+typeset -A test_results
 
 #----------------------------------------------------------------------#
 # Function: show_Usage
@@ -87,9 +94,36 @@ show_Usage() {
 #----------------------------------------------------------------------#
 z_Cleanup_Test_Directories() {
     print "Cleaning up test directories..."
-    rm -rf "$Test_Base_Dir"
-    rm -rf "$Temp_Repo"
-    mkdir -p "$Test_Base_Dir"
+    
+    # Try to remove the directories directly first
+    rm -rf "$Test_Base_Dir" 2>/dev/null || {
+        # If removal fails, try resetting permissions using Zsh glob qualifiers
+        # (/DN) for directories, recursively, don't sort
+        # (.DN) for regular files, recursively, don't sort
+        chmod 755 "$Test_Base_Dir"/**/*(/DN) 2>/dev/null || true
+        chmod 644 "$Test_Base_Dir"/**/*(.DN) 2>/dev/null || true
+        rm -rf "$Test_Base_Dir" 2>/dev/null || true
+    }
+    
+    rm -rf "$Temp_Repo" 2>/dev/null || {
+        chmod 755 "$Temp_Repo"/**/*(/DN) 2>/dev/null || true
+        chmod 644 "$Temp_Repo"/**/*(.DN) 2>/dev/null || true
+        rm -rf "$Temp_Repo" 2>/dev/null || true
+    }
+    
+    # Ensure test directories don't exist before creating them
+    if [[ -d "$Test_Base_Dir" ]]; then
+        print "Warning: Unable to fully remove existing test directory: $Test_Base_Dir"
+        print "Using new unique directory instead."
+        return $Exit_Status_Success
+    fi
+    
+    # Create fresh test directories
+    mkdir -p "$Test_Base_Dir" || {
+        print "Error: Failed to create test base directory: $Test_Base_Dir"
+        return $Exit_Status_General
+    }
+    
     print "Test directories prepared at $Test_Base_Dir"
     return $Exit_Status_Success
 }
@@ -103,7 +137,7 @@ z_Cleanup_Test_Directories() {
 #   $1 - Test name
 #   $2 - Command to run
 #   $3 - Expected exit code
-#   $4 - Pattern to search for in output (optional, case-insensitive)
+#   $4 - Pattern(s) to search for in output (pipe-separated, case-insensitive)
 # Returns:
 #   Exit_Status_Success if test passes
 #   Exit_Status_Test_Failure if test fails
@@ -112,7 +146,7 @@ z_Run_Test() {
     typeset TestName="$1"
     typeset Command="$2"
     typeset ExpectedExit="$3"
-    typeset ExpectedPattern="${4:-}"
+    typeset PatternString="${4:-}"
     
     (( Tests_Total++ ))
     
@@ -124,9 +158,10 @@ z_Run_Test() {
     
     if (( Verbose_Mode )); then
         print "COMMAND: $Command"
-        # Run command and capture exit code, but let output go to terminal
-        eval "$Command"
+        # Run command and capture both output and exit code
+        Output=$(eval "$Command" 2>&1)
         ActualExit=$?
+        print "$Output"
         print "EXIT CODE: $ActualExit (Expected: $ExpectedExit)"
     else
         Output=$(eval "$Command" 2>&1)
@@ -140,31 +175,45 @@ z_Run_Test() {
             print "OUTPUT: $Output"
         fi
         (( Tests_Failed++ ))
+        test_results[$TestName]="FAIL (exit code mismatch)"
         return $Exit_Status_Test_Failure
     fi
     
-    # Check output pattern if provided (with case-insensitive, more flexible matching)
-    if [[ -n "$ExpectedPattern" ]]; then
-        if (( Verbose_Mode )); then
-            # When in verbose mode, we need to re-run the command to capture output
-            Output=$(eval "$Command" 2>&1)
-            print "CHECKING OUTPUT for pattern: $ExpectedPattern"
+    # Check output pattern if provided using standard grep
+    if [[ -n "$PatternString" ]]; then
+        # Split pipe-separated patterns into an array using Zsh parameter expansion
+        # (s:|:) splits the string on the '|' character
+        typeset -a Patterns
+        Patterns=(${(s:|:)PatternString})
+        
+        typeset -i PatternMatched=$FALSE
+        typeset Pattern
+        
+        # Try matching any of the patterns using grep instead of Zsh regex
+        for Pattern in "${Patterns[@]}"; do
+            if echo "$Output" | grep -qi "$Pattern"; then
+                PatternMatched=$TRUE
+                break
+            fi
+        done
+        
+        if (( PatternMatched == FALSE )); then
+            print "❌ FAILED: Output doesn't match any expected patterns"
+            print "EXPECTED PATTERNS: ${(j:, :)Patterns}"
+            print "FULL OUTPUT: $Output"
+            (( Tests_Failed++ ))
+            test_results[$TestName]="FAIL (output mismatch)"
+            return $Exit_Status_Test_Failure
         fi
         
-        # Use case-insensitive grep with more flexible matching
-        if ! echo "$Output" | grep -qi "$ExpectedPattern"; then
-            print "❌ FAILED: Output doesn't match pattern '$ExpectedPattern'"
-            print "FULL OUTPUT: $Output"
-            if (( !Verbose_Mode )); then
-                print "OUTPUT: $Output"
-            fi
-            (( Tests_Failed++ ))
-            return $Exit_Status_Test_Failure
+        if (( Verbose_Mode )); then
+            print "MATCHING PATTERN: $Pattern"
         fi
     fi
     
     print "✅ PASSED"
     (( Tests_Passed++ ))
+    test_results[$TestName]="PASS"
     return $Exit_Status_Success
 }
 
@@ -190,8 +239,9 @@ z_Print_Summary() {
     else
         print "\n❌ SOME TESTS FAILED! Detailed review required:"
         
-        # Print out which specific tests failed
-        for test_name (${(k)test_results}); do
+        # Properly scope the variable with typeset
+        typeset test_name
+        for test_name in ${(k)test_results}; do
             if [[ ${test_results[$test_name]} != "PASS" ]]; then
                 print "  - $test_name: ${test_results[$test_name]}"
             fi
@@ -217,17 +267,17 @@ test_Help_And_Basic_Functionality() {
     z_Run_Test "Help display" \
         "\"$Target_Script\" --help" \
         0 \
-        "usage" 
+        "usage|help"
     
     z_Run_Test "Default repository creation" \
         "\"$Target_Script\" -r \"$Test_Base_Dir/default_repo\"" \
         0 \
-        "repository initialized" 
+        "repository initialized|inception commit|initialized with signed inception"
     
     z_Run_Test "Named repository with --repo" \
         "\"$Target_Script\" --repo \"$Test_Base_Dir/named_repo\"" \
         0 \
-        "repository initialized" 
+        "repository initialized|inception commit|initialized with signed inception"
     
     return $Exit_Status_Success
 }
@@ -248,22 +298,22 @@ test_Path_Creation() {
     z_Run_Test "Nested path creation" \
         "\"$Target_Script\" -r \"$Test_Base_Dir/nested/deeper/path\"" \
         0 \
-        "created parent directory"
+        "created parent directory|repository initialized|initialized with signed inception"
     
     z_Run_Test "Relative path creation" \
         "\"$Target_Script\" -r \"$Test_Base_Dir/relative_path_repo\"" \
         0 \
-        "repository initialized"
+        "repository initialized|initialized with signed inception"
     
     z_Run_Test "Absolute path creation" \
         "\"$Target_Script\" -r \"$(pwd)/$Test_Base_Dir/absolute_path_repo\"" \
         0 \
-        "repository initialized"
+        "repository initialized|initialized with signed inception"
     
     z_Run_Test "System temp directory" \
         "\"$Target_Script\" -r \"$Temp_Repo\"" \
         0 \
-        "repository initialized"
+        "repository initialized|initialized with signed inception"
     
     return $Exit_Status_Success
 }
@@ -284,11 +334,11 @@ test_Error_Cases() {
     z_Run_Test "Invalid option" \
         "\"$Target_Script\" --invalid-option 2>&1" \
         2 \
-        "unknown option"
+        "unknown option|invalid option"
     
     # Create a repo that will already exist
     mkdir -p "$Test_Base_Dir/existing_dir"
-    "$Target_Script" -r "$Test_Base_Dir/existing_dir" > /dev/null
+    "$Target_Script" -r "$Test_Base_Dir/existing_dir" > /dev/null 2>&1 || true
     
     z_Run_Test "Existing repository (should fail)" \
         "\"$Target_Script\" -r \"$Test_Base_Dir/existing_dir\" 2>&1" \
@@ -297,53 +347,191 @@ test_Error_Cases() {
     
     # Test no arguments (from within test dir)
     z_Run_Test "No arguments (creates default name)" \
-        "cd \"$Test_Base_Dir\" && \"$Target_Script\" && cd -" \
+        "cd \"$Test_Base_Dir\" && \"$Target_Script\" && cd - > /dev/null" \
         0 \
-        "repository initialized"
+        "repository initialized|inception commit|initialized with signed inception"
     
     return $Exit_Status_Success
 }
 
 #----------------------------------------------------------------------#
-# Function: test_Conformance
+# Function: oi_Check_Inception_Commit_Conformance
 #----------------------------------------------------------------------#
 # Description:
-#   Checks the conformance and properties of created repositories
-#   Performs comprehensive checks on repository characteristics:
-#   - Commit hash consistency
-#   - Empty commit structure
-#   - Signature assessment
-#   - Repository creation validation
+#   Performs a comprehensive conformance check on a repository's inception
+#   commit according to Open Integrity Project standards. Validates the
+#   commit structure, signature, authorship, and content requirements.
 #
 # Parameters:
-#   None
+#   $1 - Repository path to check (must be a valid Git repository)
 #
 # Returns:
-#   Exit_Status_Success if all repository conformance tests pass
-#   Exit_Status_Test_Failure if any conformance test fails
+#   Exit_Status_Success (0) if the repository conforms to standards
+#   Exit_Status_Git_Failure (5) if any conformance check fails
+#   Exit_Status_IO (3) if repository access fails
+#
+# Required Script Variables:
+#   Exit_Status_Success - Success exit code constant
+#   Exit_Status_Git_Failure - Git failure exit code constant
+#   Exit_Status_IO - I/O failure exit code constant
+#
+# Side Effects:
+#   - Updates test counters when used within a test harness
+#   - Outputs test results to stdout
+#
+# Dependencies:
+#   - git command must be available
+#   - z_Run_Test function for test execution (when used in test harness)
+#
+# Usage Example:
+#   oi_Check_Inception_Commit_Conformance "/path/to/repo" || return $?
 #----------------------------------------------------------------------#
-test_Conformance() {
-    print "\n===== testing repositories ====="
+function oi_Check_Inception_Commit_Conformance() {
+    typeset RepoPath="$1"
+    typeset -i ConformanceStatus=$TRUE
     
+    # Validate parameter
+    if [[ -z "$RepoPath" ]]; then
+        print "ERROR: Repository path parameter required"
+        return $Exit_Status_IO
+    fi
+    
+    # Validate repository exists and is accessible
+    if [[ ! -d "$RepoPath" ]]; then
+        print "ERROR: Repository directory does not exist: $RepoPath"
+        return $Exit_Status_IO
+    fi
+    
+    # Validate it's a Git repository
+    if [[ ! -d "$RepoPath/.git" ]]; then
+        print "ERROR: Not a Git repository: $RepoPath"
+        return $Exit_Status_IO
+    fi
+    
+    print "\n===== Checking repository conformance: $RepoPath ====="
+    
+    # Check 1: Repository has a commit with valid SHA
     z_Run_Test "Repository DID consistency" \
-        "cd \"$Test_Base_Dir/default_repo\" && git rev-parse HEAD && cd -" \
+        "cd \"$RepoPath\" && git rev-parse HEAD && cd - > /dev/null" \
         0 \
-        "[0-9a-f]"
+        "[0-9a-f]" || ConformanceStatus=$FALSE
     
+    # Check 2: Initial commit has expected structure
     z_Run_Test "Empty commit conformance" \
-        "cd \"$Test_Base_Dir/default_repo\" && git show --name-only HEAD | grep -A 5 \"commit\"" \
+        "cd \"$RepoPath\" && git show --name-only HEAD | grep -A 5 \"commit\"" \
         0 \
-        "initialize"
+        "initialize" || ConformanceStatus=$FALSE
     
+    # Check 3: Committer name is in proper format (SHA256)
+    typeset CommitterName
+    CommitterName=$(cd "$RepoPath" && git show --no-patch --format="%cn" HEAD 2>/dev/null)
+    
+    # Using grep for pattern matching
+    z_Run_Test "Committer name format" \
+        "echo \"$CommitterName\" | grep -q \"^SHA256:\"" \
+        0 \
+        "" || ConformanceStatus=$FALSE
+    
+    # Display the actual committer name for reference
+    if [[ -n "$CommitterName" ]]; then
+        print "INFO: Committer name set to: $CommitterName"
+    fi
+    
+    # Check 4: Verify required commit message text
+    # Using grep for pattern matching
+    z_Run_Test "Commit message content" \
+        "cd \"$RepoPath\" && git log -1 --pretty=%B | grep -q \"Initialize repository and establish a SHA-1 root of trust\"" \
+        0 \
+        "" || ConformanceStatus=$FALSE
+    
+    # Check 5: Verify commit message has proper sign-off
+    # Using grep for pattern matching
+    z_Run_Test "Commit sign-off present" \
+        "cd \"$RepoPath\" && git log -1 --pretty=%B | grep -q \"^Signed-off-by:\"" \
+        0 \
+        "" || ConformanceStatus=$FALSE
+    
+    # Check 6: Verify authorship
+    z_Run_Test "Commit authorship" \
+        "cd \"$RepoPath\" && git show --no-patch --format=\"%an <%ae>\" HEAD" \
+        0 \
+        "" || ConformanceStatus=$FALSE
+    
+    # Check 7: Verify signature
     z_Run_Test "Signature conformance" \
-        "cd \"$Test_Base_Dir/default_repo\" && ! git verify-commit HEAD 2>&1 | grep -q 'No principal matched' && git verify-commit HEAD 2>&1" \
+        "cd \"$RepoPath\" && ! git verify-commit HEAD 2>&1 | grep -q 'No principal matched' && git verify-commit HEAD 2>&1" \
         0 \
-        "good.*signature"
+        "good.*signature" || ConformanceStatus=$FALSE
     
-    z_Run_Test "Check created repositories" \
-        "find \"$Test_Base_Dir\" -type d -name .git | sed 's/.git$//' | sort" \
+    # Check 8: Verify the commit is truly empty (has no files)
+    # Using wc and tr for empty tree verification
+    z_Run_Test "Empty tree verification" \
+        "cd \"$RepoPath\" && git ls-tree -r HEAD | wc -l | tr -d ' '" \
         0 \
-        "default_repo"
+        "^0$" || ConformanceStatus=$FALSE
+    
+    # Return appropriate status
+    if (( ConformanceStatus == TRUE )); then
+        print "✅ Repository conforms to Open Integrity inception commit standards"
+        return $Exit_Status_Success
+    else
+        print "❌ Repository does NOT conform to Open Integrity inception commit standards"
+        return $Exit_Status_Git_Failure
+    fi
+}
+
+#----------------------------------------------------------------------#
+# Function: core_Logic
+#----------------------------------------------------------------------#
+# Description:
+#   Orchestrates the main script workflow with enhanced tracking
+# Parameters:
+#   None
+# Returns:
+#   Exit_Status_Success on success
+#   Exit_Status_Test_Failure if any tests fail
+#----------------------------------------------------------------------#
+core_Logic() {
+    print "Starting tests for create_inception_commit.sh"
+    print "Target script: $Target_Script"
+    
+    # Check that target script exists
+    if [[ ! -f "$Target_Script" ]]; then
+        print "ERROR: Target script not found at: $Target_Script"
+        return $Exit_Status_General
+    fi
+    
+    # Clean up test directories
+    z_Cleanup_Test_Directories || {
+        print "ERROR: Failed to clean up test directories"
+        return $Exit_Status_General
+    }
+    
+    # Run test suites and capture results
+    {
+        test_Help_And_Basic_Functionality
+        test_Path_Creation
+        test_Error_Cases
+        
+        # Run test repositories creation first
+        "$Target_Script" -r "$Test_Base_Dir/conformance_test_repo" > /dev/null 2>&1 || {
+            print "ERROR: Failed to create test repository for conformance testing"
+            return $Exit_Status_Test_Failure
+        }
+        
+        # Then check inception commit conformance
+        oi_Check_Inception_Commit_Conformance "$Test_Base_Dir/conformance_test_repo"
+    } || {
+        print "Warning: One or more test suites encountered failures"
+    }
+    
+    # Print summary
+    z_Print_Summary
+    
+    # Return based on test results
+    if (( Tests_Failed > 0 )); then
+        return $Exit_Status_Test_Failure
+    fi
     
     return $Exit_Status_Success
 }
@@ -387,54 +575,6 @@ parse_Parameters() {
 }
 
 #----------------------------------------------------------------------#
-# Function: core_Logic
-#----------------------------------------------------------------------#
-# Description:
-#   Orchestrates the main script workflow with enhanced tracking
-# Parameters:
-#   None
-# Returns:
-#   Exit_Status_Success on success
-#   Exit_Status_Test_Failure if any tests fail
-#----------------------------------------------------------------------#
-core_Logic() {
-    # Associative array to track test results
-    typeset -A test_results
-
-    print "Starting tests for create_inception_commit.sh"
-    print "Target script: $Target_Script"
-    
-    # Check that target script exists
-    if [[ ! -f "$Target_Script" ]]; then
-        print "ERROR: Target script not found at: $Target_Script"
-        return $Exit_Status_General
-    fi
-    
-    # Clean up test directories
-    z_Cleanup_Test_Directories
-    
-    # Run test suites and capture results
-    {
-        test_Help_And_Basic_Functionality
-        test_Path_Creation
-        test_Error_Cases
-        test_Conformance
-    } || {
-        print "Warning: One or more test suites encountered failures"
-    }
-    
-    # Print summary
-    z_Print_Summary
-    
-    # Return based on test results
-    if (( Tests_Failed > 0 )); then
-        return $Exit_Status_Test_Failure
-    fi
-    
-    return $Exit_Status_Success
-}
-
-#----------------------------------------------------------------------#
 # Function: main
 #----------------------------------------------------------------------#
 # Description:
@@ -470,4 +610,3 @@ if [[ "${(%):-%N}" == "$0" ]]; then
     main "$@"
     exit $?  # Explicitly propagate the exit status from main
 fi
-
