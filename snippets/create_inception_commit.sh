@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 ########################################################################
 ## Script:        create_inception_commit.sh
-## Version:       0.1.02 (2025-02-27)
+## Version:       0.1.03 (2025-03-03)
 ## Origin:        https://github.com/BlockchainCommons/open_integrity-git_inception_WIP/snippets/create_inception_commit.sh
 ## Description:   Creates a new Git repository with a properly signed empty
 ##                inception commit following Open Integrity Project standards.
