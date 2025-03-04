@@ -1,7 +1,7 @@
 # Open Integrity Project: Scripts Hub
 > - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/README.md`_
 > - _github: [`Open Integrity Scripts`](https://github.com/OpenIntegrityProject/scripts/blob/main/README.md)_
-> - _Updated: 2025-02-26 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _Updated: 2025-03-03 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
 [![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
@@ -19,8 +19,13 @@ This repository offers implementations of Open Integrity specifications using Zs
 
 ## 🛠 Available Scripts
 
-### ⚙️ Primary Scripts *(Coming Soon!)*
-The development of core Open Integrity scripts is underway. These will include comprehensive audit tools for verifying cryptographic trust in repositories.
+### ⚙️ Primary Scripts
+- 🔍 **`audit_inception_commit-POC.sh`** – Performs multi-phase audits of Git repository inception commits, verifying compliance with Open Integrity specifications
+  - [Script](https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh) - The main audit script
+  - [Test Script](https://github.com/OpenIntegrityProject/scripts/blob/main/tests/TEST-audit_inception_commit.sh) - Comprehensive regression test
+  - [Test Output](https://github.com/OpenIntegrityProject/scripts/blob/main/tests/OUTPUT-TEST-audit_inception_commit-POC.txt) - Reference test output
+  - [Requirements](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-audit_inception_commit-POC.md) - Detailed requirements
+  - [Issues](https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-audit_inception_commit-POC.md) - Tracked issues and improvements
 
 ### ✂️ Snippet Scripts (Utilities)
 Small, focused scripts that perform specific Open Integrity functions:
@@ -39,12 +44,18 @@ This repository follows a structured layout to separate different types of scrip
 .
 ├── .gitignore
 ├── README.md
+├── audit_inception_commit-POC.sh        # New: Inception commit audit script
 ├── issues
 │   ├── ISSUES-Open_Integrity_Scripting_Infrastructure.md
-│   └── ISSUES-Zsh_Core_Scripting_Best_Practices.md
+│   ├── ISSUES-Zsh_Core_Scripting_Best_Practices.md
+│   └── ISSUES-audit_inception_commit-POC.md  # New: Issues for audit script
 ├── requirements
+│   ├── REQUIREMENTS-Regression_Test_Scripts.md  # New: Test script standards 
 │   ├── REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md
-│   └── REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md
+│   ├── REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md  # New: Framework script standards
+│   ├── REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md
+│   ├── REQUIREMENTS-audit_inception_commit-POC.md  # New: Audit script requirements
+│   └── REQUIREMENTS-z_Utils_Functions.md  # New: Shared utility functions requirements
 ├── snippets
 │   ├── create_inception_commit.sh
 │   ├── get_repo_did.sh
@@ -56,17 +67,26 @@ This repository follows a structured layout to separate different types of scrip
 │   └── tests
 │       └── TEST-create_inception_commit.sh
 └── tests
+    ├── OUTPUT-TEST-audit_inception_commit-POC.txt  # New: Test output reference
+    └── TEST-audit_inception_commit.sh  # New: Regression test for audit script
 ```
 
 ### 📌 Purpose of Each Directory
 
-- **Root** – Contains this `README.md` and will eventually house primary Open Integrity automation scripts.
-- **`/requirements/`** – Defines **coding standards** and **best practices**.
+- **Root** – Contains this `README.md` and primary Open Integrity automation scripts.
+- **`/requirements/`** – Defines **coding standards** and **best practices**, including:
+  - **Core Scripting** – Universal principles for all Zsh scripts
+  - **Snippet Scripting** – Guidelines for small, focused utility scripts
+  - **Framework Scripting** – Standards for complex, multi-component scripts
+  - **Regression Testing** – Requirements for test scripts
+  - **Script-Specific** – Detailed requirements for individual scripts
 - **`/issues/`** – Tracks known issues and improvements.
 - **`/snippets/`** – Small, reusable utility scripts under 200 lines.
   - **`/snippets/requirements/`** – Specifies individual script requirements.
   - **`/snippets/tests/`** – Regression tests ensuring snippet functionality.
 - **`/tests/`** – Comprehensive testing framework for the project.
+  - **Test Scripts** – Regression tests for primary scripts
+  - **Test Output** – Reference output from successful tests
 
 ## 💡 More Information
 
@@ -82,12 +102,19 @@ To use these scripts, **clone the repository** and ensure dependencies are insta
 
 ```sh
 # Clone the repository
-git clone https://github.com/OpenIntegrityProject/scripts.git
+gh repo clone OpenIntegrityProject/scripts
+# or `git clone https://github.com/OpenIntegrityProject/scripts.git`
 cd scripts
 
 # Make scripts executable
 chmod +x *.sh
 chmod +x snippets/*.sh
+
+# Example: Audit this repository's inception commit
+./audit_inception_commit-POC.sh
+
+# Example: Audit another repository's inception commit
+./audit_inception_commit-POC.sh -C /path/to/repo
 
 # Example: Create a repository with a signed inception commit
 ./snippets/create_inception_commit.sh -r my_new_repo
@@ -96,21 +123,26 @@ chmod +x snippets/*.sh
 ./snippets/get_repo_did.sh -C /path/to/repo
 ```
 
-🔍 **For script details, refer to the** [📜 `snippets/requirements/` directory](snippets/requirements/)
+🔍 **For script details, refer to the** [`requirements/` directory](requirements/)
 
 ## 🛠 Development Guidelines
 
 All script development follows strict coding standards outlined in:
 - 📜 [Zsh Core Scripting Best Practices](requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md)
 - ✍️ [Zsh Snippet Script Best Practices](requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md)
+- 🏗️ [Zsh Framework Script Best Practices](requirements/REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md)
+- 🧪 [Regression Test Scripts](requirements/REQUIREMENTS-Regression_Test_Scripts.md)
 
 ### 🧪 Running Tests
 
-Each script includes **automated regression tests**. Run them as follows:
+Many scripts includes **automated regression tests**. Run them as follows:
 
 ```sh
 # Run tests for create_inception_commit.sh
 ./snippets/tests/TEST-create_inception_commit.sh
+
+# Run tests for audit_inception_commit-POC.sh
+./tests/TEST-audit_inception_commit.sh
 ```
 
 ## 🌟 Support the Open Integrity Project
@@ -141,18 +173,6 @@ All contributors must adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
 We recommend starting general issues in GitHub's 💬 [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions) to encourage open dialogue before they are formally moved to our ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/community/issues). 
 
 However, in alignment with our commitment to decentralized repository management, we plan to develop GitHub Action scripts that will automatically populate `/issues/` directories within each repository. This will allow issues to be mirrored across multiple Git hosting platforms, ensuring greater resilience and accessibility beyond GitHub.
-
-## 🤝 How to Contribute
-
-We welcome contributions from developers, researchers, and security experts!
-
-1. Read our **[Contributing Guide](CONTRIBUTING.md)**
-2. Fork the repository & create a feature branch
-3. Implement your feature or fix
-4. Digitally sign all your commits with an SSH signing key (`gitc commit -S`) and attribute authorship (`git commit --signoff`).
-4. Submit a **Pull Request** for review
-
-All contributors must adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## 👨‍💻 **Lead Developer**
 **Christopher Allen** ([@ChristopherA](https://github.com/ChristopherA)), [\<ChristopherA@LifeWithAlacrity.com/>](mailto:ChristopherA@LifeWithAlacrity.com)
