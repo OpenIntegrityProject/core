@@ -51,21 +51,24 @@ When preparing a new version release, follow these steps:
    - Issue documents
    - Test output references
 
-6. Push commits and create a script-specific version tag:
+6. Push commits and create tags as appropriate:
    ```
    # Push commits to origin
    git push origin main
    
-   # Create signed tag with script-specific name
+   # For script changes only: Create signed tag with script-specific name
    git tag -s <script-name>-v<version> -m "Release <version> (<date>) of <script-name>"
    # Example: git tag -s audit_inception_commit-POC-v0.1.04 -m "Release 0.1.04 (2025-03-04) of audit_inception_commit-POC.sh"
    
-   # Push the tag
+   # Push the tag (for script changes only)
    git push origin <script-name>-v<version>
    ```
    
-   Note: Use script-specific tags rather than repository-wide version tags
-   since each script maintains its own version numbering.
+   Important tagging notes:
+   - Create and push script-specific version tags only for changes to scripts (not for documentation-only changes)
+   - Documentation-only changes (to requirements, issues, etc.) should be pushed but do not need version tags
+   - Each script maintains its own version numbering
+   - Always push changes to the upstream repository when complete, regardless of whether a tag is created
 
 ## Main Scripts
 
