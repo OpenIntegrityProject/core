@@ -1,26 +1,10 @@
 # Open Integrity Project Scripts
 
-## Terminology Guidelines
+## Progressive Trust Terminology
 
-When working with Open Integrity Project scripts, please adhere to these Progressive Trust terminology conventions:
+The Open Integrity Project uses specific terminology for each phase of the Progressive Trust model. For the comprehensive terminology guidelines, please refer to:
 
-1. **Reserved Terms**:
-   - Only use "verify/verification/verifying" for cryptographic operations in Phase 3 (Proofs)
-   - Never use "validate/validation/validating" as it implies a different trust model
-
-2. **Preferred Alternatives**:
-   - Use "assess/assessment" for general checks
-   - Use "examine/examination" for detailed inspection
-   - Use "check" for basic operational tests
-   - Use "evaluate/evaluation" for qualitative judgments
-
-3. **Phase Terminology**:
-   - Phase 2 (Wholeness): "assess integrity", "examine structure"
-   - Phase 3 (Proofs): "verify signature", "cryptographically verify"
-   - Phase 4 (References): "affirm identity", "check references"
-   - Phase 5 (Requirements): "evaluate compliance", "check standards"
-
-These distinctions help maintain conceptual clarity in the Progressive Trust model.
+- [Progressive Trust Terminology Requirements](requirements/REQUIREMENTS-Progressive_Trust_Terminology.md)
 
 The Open Integrity Project integrates cryptographic trust mechanisms into Git repositories, establishing verifiable chains of integrity, provenance, and authorship. For a comprehensive overview, see the [README.md](README.md).
 
