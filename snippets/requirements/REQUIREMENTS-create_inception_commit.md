@@ -1,26 +1,36 @@
-_file: `REQUIREMENTS-create_inception_commit.md`_
+# Requirements for Zsh Snippet "Create Inception Commit"
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/snippets/requirements/REQUIREMENTS-create_inception_commit.md`_
+> - _github: [`scripts/snippets/requirements/REQUIREMENTS-create_inception_commit.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/snippets/requirements/REQUIREMENTS-create_inception_commit.md)_
+> - _Updated: 2025-02-28 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
-# Zsh Snippet `create_inception_commit.sh` Requirements
-_(Last updated: 2025-02-25, Christopher Allen <ChristopherA@LifeWithAlacrity.com>)_
+[![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
+[![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
+[![Version](https://img.shields.io/badge/version-0.1.02-blue.svg)](CHANGELOG.md)
+
+## Code Version and Source
+
+This requirements document applies to version **0.1.02 (2025-02-28)** of the code, which is available at the following source:
+
+**Origin:** [GitHub: `create_inception_commit.sh`](https://github.com/OpenIntegrityProject/scripts/blob/main/snippets/create_inception_commit.sh) and [GitHub: `TEST-create_inception_commit.sh`](https://github.com/OpenIntegrityProject/scripts/blob/main/snippets/create_inception_commit.sh).
+
+Any updates or modifications to the code should reference this version to ensure consistency with the outlined requirements.
 
 ## General Requirements
 
-This script must adhere to all principles defined in:
-- `REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md` - For general Zsh scripting practices
-- `REQUIREMENTS-Zsh_Snippet_Scripting_Best_Practices.md` - For Snippet-specific implementation details
+This script must adhere to all the principles and requirements for Zsh scripts defined in:
+- [Zsh Core Scripting Requirements and Best Practices](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md) - For general Zsh scripting practices
+- [Zsh Snippet Scripting Requirements and Best Practices](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md) - For Snippet-specific implementation details
 
-As a Zsh Snippet, this script must remain under 100 lines of code (excluding comments and variable declarations) and follow the execution flow, error handling, parameter processing, and documentation standards defined in those documents.
+As a Zsh Snippet, this script must remain under 200 lines of code (excluding comments and variable declarations) and follow the execution flow, error handling, parameter processing, and documentation standards defined in those documents.
 
 ## Functionality
-- Create a new Git repository with a properly signed empty inception commit following Open Integrity Project standards
 - Verify Git configuration includes required signing settings
+- Support both relative and absolute paths for repository creation
 - Create the directory structure for the repository if it doesn't exist
-- Create an empty initial commit that provides a cryptographic root of trust
+- Create an initial commit, following the Open Integrity Project standards, to provide a cryptographic root of trust
 - Ensure the commit is properly signed with SSH key using Git's native signing capabilities
 - Verify the signature after creation to confirm trust integrity
-- Display the repository's DID in the format "did:repo:<hash>"
 - Provide appropriate error messages for missing requirements or failed operations
-- Support both relative and absolute paths for repository creation
 
 ### Repository Creation Process
 The script must follow these steps to create a compliant inception commit:
@@ -28,16 +38,15 @@ The script must follow these steps to create a compliant inception commit:
 - Create an empty commit with the standardized Open Integrity initialization message
 - Sign the commit using the author's SSH key
 - Set the committer name to the SSH key fingerprint
-- Verify the signature to ensure trust integrity
-- Display the repository's DID based on the inception commit hash
+- Display the repository's DID based on the inception commit hash, in the format "did:repo:<hash>"
+- Display the relative path of the created repository in the output
 
 ## Output Handling
-- Use `print` for all output for better Zsh compatibility. *(Required)*
-- All error messages must be directed to stderr using `print -u2`. *(Required)*
+- Use `print` for all output for better Zsh compatibility *(Required)*
+- All error messages must be directed to stderr using `print -u2` *(Required)*
 - For successful operations, display clear success messages with a checkmark emoji (✅)
 - For failures, display error messages with appropriate emoji (❌)
-- Include the full path of the created repository in the output
-- Display both the inception commit hash and the resulting DID
+- Display the verified inception commit hash in `did:repo:<commithash>` form
 
 ## Arguments & Options
 - **`-r | --repo <directory>`** (optional)
@@ -47,108 +56,75 @@ The script must follow these steps to create a compliant inception commit:
   - Display help message with usage and examples
 
 ## Exit Codes & Error Handling
-- Use standardized exit codes defined in `REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md`. *(Required)*
-- Follow the error propagation flow defined in the Core Requirements. *(Required)*
-- Use specific exit codes for different error types:
-  - `Exit_Status_Success` (0) - Repository created successfully
-  - `Exit_Status_General` (1) - General error
-  - `Exit_Status_Usage` (2) - Invalid arguments
-  - `Exit_Status_IO` (3) - Repository path/directory issues
-  - `Exit_Status_Git_Failure` (5) - Git repository operations failed
-  - `Exit_Status_Config` (6) - Git configuration is invalid
-  - `Exit_Status_Dependency` (127) - Missing executables
+- Use exit codes for different error types *(Required)*
+- Use the standardized exit codes defined in [Zsh Core Scripting Requirements and Best Practices § Error Handling Requirements](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md#zsh-snippet-scripting---error-handling-requirements) *(Required)*
+- Follow the error propagation flow defined in the Core Requirements *(Required)*
 
-## Function Documentation
-
-All functions must be documented with a consistent, structured comment block that includes: *(Required)*
-- Function name in the header
-- Description of purpose
-- Parameters with types and constraints
-- Return values and exit codes
-- Dependencies on external commands or functions
-- Any side effects or special considerations
+## Script and Function Documentation
+All functions must be documented with a consistent, structured comment block as per:
+- [Script Header Comment Block Requirements](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md#script-header-comment-block-requirements)
+- [Function Comment Block Requirements](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md#function-comment-block-requirements)
 
 ### Function Naming Standards
-Function names must follow the pattern specified in `REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md`: *(Required)*
-- **General utilities**: `z_Verb_Object()` (e.g., `z_Check_Dependencies()`)
-- **Open Integrity specific**: `oi_Verb_Object()` (e.g., `oi_Create_Inception_Commit()`)
+Function names must follow the pattern specified in Core Scripting Requirements:
+- **General utility functions**: `z_Verb_Object()` (e.g., `z_Check_Dependencies()`)
+- **Open Integrity specific utility functions**: `oi_Verb_Object()` (e.g., `oi_Create_Inception_Commit()`)
 
 ### Required Functions
 The script must include the following functions:
+- **`z_Report_Error()`** - Centralized error reporting with consistent formatting
+- **`z_Convert_Path_To_Relative()`** - Converts absolute paths to relative paths for display
 - **`z_Check_Dependencies()`** - Verifies required external commands are available
 - **`z_Ensure_Parent_Path_Exists()`** - Validates and creates parent directories if needed
-- **`oi_Verify_Git_Config()`** - Verifies Git configuration includes required signing settings
-- **`oi_Create_Inception_Commit()`** - Creates a new repository with a properly signed inception commit
-- **`oi_Assure_Functional_Git_Repo()`** - Verifies a path is a functional Git repository
+- **`oi_Extract_Ssh_Key_Fingerprint()`** - Extracts the SSH key fingerprint using Zsh-native parsing
 - **`oi_Get_First_Commit_Hash()`** - Retrieves the hash of the first commit from a Git repository
-- **`oi_Verify_Commit_Signature()`** - Verifies that a commit is properly signed with SSH key
-- **`oi_Get_Repo_DID()`** - Gets the DID for a repository based on its inception commit
+- **`oi_Verify_Git_Config()`** - Verifies Git configuration includes required signing settings
+- **`oi_Assure_Functional_Git_Repo()`** - Verifies a path is a functional Git repository
+- **`oi_Get_Repo_DID()`** - Gets the DID for a repository based on its inception commit hash
+- **`oi_Create_Inception_Commit()`** - Creates a new repository with a properly signed inception commit
 
-## Script Documentation
+## Test Harness Requirements
 
-### Script Header Comment Block Requirements
-Must include the following elements: *(Required)*
-- **Script name and version**
-- **Origin** (link to repository)
-- **Description** of purpose and functionality
-- **License** (BSD-3-Clause)
-- **Copyright** and attribution
-- **Usage** with all command-line options
-- **Examples** showing typical invocation patterns
-- **Security** notes about the inception commit's role in establishing trust
+### Test Scenarios
+The regression test script must:
+- Verify script functionality across various input scenarios
+- Test the script with:
+  - Default repository name (no arguments)
+  - Relative path repository creation
+  - Absolute path repository creation
+  - Nested path repository creation
+  - Help flag display
 
-## Testing Requirements
+### Test Coverage
+The test script must validate:
+- Successful repository creation
+- Correct inception commit generation
+- Proper SSH key signing
+- Accurate repository DID generation
+- Error handling for:
+  - Invalid options
+  - Existing repository paths
+  - Permission-restricted paths
+  - Incomplete Git configurations
 
-The following test cases must be used to verify compliance:
-
-1. **Parameter Handling**
-   - Test the script with the default repository name (no arguments)
-   - Test with `-r | --repo` parameter for relative paths
-   - Test with `-r | --repo` parameter for absolute paths
-   - Test with `-r | --repo` parameter for nested paths
-   - Test with `-h | --help` parameter for help display
-
-2. **Error Handling**
-   - Test with invalid options and verify appropriate error message
-   - Test with a path that already contains a repository
-   - Test with path that cannot be created (permissions)
-   - Test with Git configuration missing required settings
-
-3. **Path Handling**
-   - Test with existing directories
-   - Test with non-existent directories that need creation
-   - Test with nested directories requiring recursive creation
-   - Test with relative and absolute paths
-
-4. **Inception Commit Creation**
-   - Verify that the commit is empty
-   - Verify that the commit message follows the Open Integrity standard
-   - Verify that the committer name is set to the SSH key fingerprint
-   - Verify that the signature can be verified
-
-5. **Output Validation**
-   - Verify that successful operations display the repository path
-   - Verify that the inception commit hash is displayed
-   - Verify that the DID is correctly formatted as "did:repo:<hash>"
-
-## Security Requirements
-
-- Ensure the commit is properly signed using SSH keys
-- Verify Git is correctly configured for SSH-based commit signing
-- Check that SSH keys are accessible and have appropriate permissions
-- Include security notices about the importance of verifying signatures
-
-## Compatibility Requirements
-
-- The script must work with Git 2.34 or later (required for SSH signing support)
-- The script must be compatible with OpenSSH 8.0 or later 
-- The script must work on both macOS and Linux systems
+### Test Output
+- Provide clear, emoji-based test result reporting
+- Generate a summary showing:
+  - Total tests executed
+  - Number of passed tests
+  - Number of failed tests
+- Support verbose mode for detailed test diagnostics
 
 ## Versioning and Lifecycle
 
 Version history and future plans for this script:
 
-- **0.1.00** (2025-02-25): Initial release version
+- **0.1.02** (2025-02-28): Enhanced reliability and test coverage
+  - Improved error handling
+  - Expanded test scenarios
+  - Enhanced path validation
+
+- **0.1.01** (2025-02-25): Initial functional version
   - Base functionality to create inception commits
   - Support for relative and absolute paths
   - DID generation based on inception commit
