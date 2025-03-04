@@ -29,6 +29,48 @@ Issues related to the [Zsh Core Scripting Requirements and Best Practices](https
 - Provide explicit, unambiguous examples
 - Add section explaining exceptions to these naming rules.
 
+## Exit Code Handling
+
+### ISSUE: Exit Code Propagation Patterns and Main() Exit Exceptions
+**Context:** The Zsh Core and Framework Script requirements specify that the only function that should call `exit` directly is `main()`. However, we've discovered exceptions where direct `exit` calls might be necessary for proper exit code propagation.
+
+**Current:** Several patterns are in use across the codebase:
+1. Using `return` in functions to propagate exit codes to `main()`
+2. Direct `exit` calls in special functions like `show_Usage()` and `core_Logic()`
+3. Mixed patterns where some functions use `return` while others use `exit`
+
+In `audit_inception_commit-POC.sh`, we discovered that using `return` in `core_Logic()` failed to properly propagate exit codes, requiring explicit `exit` statements.
+
+**Impact:** 
+- Inconsistent exit code behavior
+- Potential loss of error status when using `return` in some contexts
+- Risk of incorrect signals to automation and CI/CD pipelines
+- Confusion for script authors about when to use `exit` vs. `return`
+
+**Proposed Actions:**
+1. **Document Clear Exceptions** to the "exit only in main()" rule:
+   - Add exceptions for functions like `show_Usage()` that terminate script flow
+   - Add exceptions for controller functions like `core_Logic()` that need guaranteed exit code propagation
+   - Document these exceptions with clear reasoning
+
+2. **Investigate Causes** of exit code propagation failures:
+   - Test exit code behavior with various `return` vs. `exit` patterns
+   - Identify Zsh-specific issues with exit code propagation
+   - Document findings with examples
+
+3. **Document Recommended Patterns** for reliable exit code handling:
+   - When to use `return`
+   - When to use `exit`
+   - How to test exit code propagation
+   - How to design function hierarchies for reliable exit code handling
+
+4. **Update Function Documentation Templates** to note when a function:
+   - Returns an exit code intended for propagation
+   - Exits directly with a specific exit code
+   - Has no exit code requirements
+
+**Status:** OPEN
+
 ### ISSUE: Ambiguity in Naming Convention Terminology 
 **Context:** The requirements document contains non-conventional terminology for function naming conventions. 
 
