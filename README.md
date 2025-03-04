@@ -44,18 +44,20 @@ This repository follows a structured layout to separate different types of scrip
 .
 ├── .gitignore
 ├── README.md
-├── audit_inception_commit-POC.sh        # New: Inception commit audit script
+├── ROADMAP.md                          # Project roadmap and development timeline
+├── audit_inception_commit-POC.sh       # Inception commit audit script
 ├── issues
 │   ├── ISSUES-Open_Integrity_Scripting_Infrastructure.md
 │   ├── ISSUES-Zsh_Core_Scripting_Best_Practices.md
-│   └── ISSUES-audit_inception_commit-POC.md  # New: Issues for audit script
+│   └── ISSUES-audit_inception_commit-POC.md  # Issues for audit script
 ├── requirements
-│   ├── REQUIREMENTS-Regression_Test_Scripts.md  # New: Test script standards 
+│   ├── REQUIREMENTS-Progressive_Trust_Terminology.md  # Progressive Trust terminology standards
+│   ├── REQUIREMENTS-Regression_Test_Scripts.md  # Test script standards 
 │   ├── REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md
-│   ├── REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md  # New: Framework script standards
+│   ├── REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md  # Framework script standards
 │   ├── REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md
-│   ├── REQUIREMENTS-audit_inception_commit-POC.md  # New: Audit script requirements
-│   └── REQUIREMENTS-z_Utils_Functions.md  # New: Shared utility functions requirements
+│   ├── REQUIREMENTS-audit_inception_commit-POC.md  # Audit script requirements
+│   └── REQUIREMENTS-z_Utils_Functions.md  # Shared utility functions requirements
 ├── snippets
 │   ├── create_inception_commit.sh
 │   ├── get_repo_did.sh
@@ -67,18 +69,19 @@ This repository follows a structured layout to separate different types of scrip
 │   └── tests
 │       └── TEST-create_inception_commit.sh
 └── tests
-    ├── OUTPUT-TEST-audit_inception_commit-POC.txt  # New: Test output reference
-    └── TEST-audit_inception_commit.sh  # New: Regression test for audit script
+    ├── OUTPUT-TEST-audit_inception_commit-POC.txt  # Test output reference
+    └── TEST-audit_inception_commit.sh  # Regression test for audit script
 ```
 
 ### 📌 Purpose of Each Directory
 
-- **Root** – Contains this `README.md` and primary Open Integrity automation scripts.
+- **Root** – Contains this `README.md`, `ROADMAP.md`, and primary Open Integrity automation scripts.
 - **`/requirements/`** – Defines **coding standards** and **best practices**, including:
   - **Core Scripting** – Universal principles for all Zsh scripts
   - **Snippet Scripting** – Guidelines for small, focused utility scripts
   - **Framework Scripting** – Standards for complex, multi-component scripts
   - **Regression Testing** – Requirements for test scripts
+  - **Progressive Trust** – Terminology and implementation standards
   - **Script-Specific** – Detailed requirements for individual scripts
 - **`/issues/`** – Tracks known issues and improvements.
 - **`/snippets/`** – Small, reusable utility scripts under 200 lines.
@@ -93,7 +96,7 @@ This repository follows a structured layout to separate different types of scrip
 For further details about the **Open Integrity Project**, visit:
 
 - 📖 [**Documentation Hub**](https://github.com/OpenIntegrityProject/docs) – Architecture, problem statement, and guides
-- 📋 [**Project Roadmap**](https://github.com/orgs/OpenIntegrityProject/projects) – Development phases and milestones
+- 📋 [**Project Roadmap**](ROADMAP.md) – Development phases and milestones
 - 💬 [**Discussions**](https://github.com/OpenIntegrityProject/docs/discussions) — Join the conversation
 
 ## 🚀 Getting Started
