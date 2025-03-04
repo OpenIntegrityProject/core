@@ -1,7 +1,28 @@
-_file: `https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md`_
-
 # Open Integrity Project - System-Wide Scripting Infrastructure Issues
-_(Last updated: 2025-02-26, Christopher Allen <ChristopherA@LifeWithAlacrity.com>)_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md`_
+> - _github: [`scripts/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md)_
+> - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+
+[![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
+[![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
+[![Version](https://img.shields.io/badge/version-0.1.*-blue.svg)](CHANGELOG.md)
+
+Issues related to system-wide scripting infrastructure for the Open Integrity Project, addressing cross-cutting concerns that impact multiple scripts and repositories.
+
+## Code Version and Source
+
+This issues document applies to the Open Integrity Project's scripts collection, **version 0.1.* (2025-03-04)**, which is available at the following sources:
+
+> **Origin:**
+> - [Scripts Repository: _github: `https://github.com/OpenIntegrityProject/scripts`_](https://github.com/OpenIntegrityProject/scripts/)
+> - [Readme: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/README.md`_](https://github.com/OpenIntegrityProject/scripts/blob/main/README.md)
+
+Each issue is structured with:
+- **Context**: Background information about the issue
+- **Current**: Description of the current implementation
+- **Impact**: Consequences of the current implementation
+- **Proposed Actions**: Recommended steps to address the issue
+- **Status/Progress**: Current status of the issue (RESOLVED, IN PROGRESS, or OPEN)
 
 ## Open Integrity Commit Enforcement
 
@@ -279,6 +300,21 @@ By implementing these actions, we ensure that when a repository transitions to *
 **Progress:**
 - 2025-02-26 There are now some recommended function documentation requirements for Zsh Snippet at  [Zsh Core Scripting Requirements and Best Practices: § Script Documentation](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md#zsh-snippet-scripting---script-documentation)
 
+## Progressive Trust Phase Warning Reporting
+
+### ISSUE: Standardized Warning Reporting for Progressive Trust Phases 4-5
+**Context:** The Progressive Trust model includes phases that extend beyond local repository verification (phases 1-3) to include remote verification (phases 4-5)
+**Current:** Remote verification failures are reported inconsistently and may inappropriately affect exit codes
+**Impact:** Creates confusion for users and automation tools about the severity and meaning of different verification outcomes
+**Proposed Actions:**
+- Define a standardized approach for reporting phase 4-5 "warnings" that doesn't affect exit codes
+- Create a consistent warning reporting mechanism that distinguishes from critical failures
+- Implement structured output format (e.g., JSON) for machine-readable warning information
+- Develop visual indicators in human-readable output (colors, emoji, sections)
+- Document the warning reporting standard for all Open Integrity tools
+
+**Status:** OPEN (Added 2025-03-04)
+
 ## Code Reuse and Modularity
 
 ### ISSUE: Error Handling Standardization
@@ -293,6 +329,7 @@ By implementing these actions, we ensure that when a repository transitions to *
 - Ensure all scripts follow the same error handling pattern
 **Progress:**
 - 2025-02-26 There are now some recommended error codes, best practices and examples in [Zsh Core Scripting Requirements and Best Practices: §Error Handling Requirment](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md#zsh-core-scripting---error-handling-requirements)
+- 2025-03-04 Added architectural decision: non-zero exit codes should fundamentally represent issues with the first phases of Progressive Trust against the local repository (phases 1-3). Problems in phases 4-5 should be reported as warnings rather than affecting exit codes.
 
 ### ISSUE: Limited Code Reusability
 **Context:** Scripts lack a clear modular structure for easy reuse
