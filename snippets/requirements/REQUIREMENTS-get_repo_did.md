@@ -9,7 +9,7 @@ This script must adhere to all principles defined in:
 - `REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md` - For general Zsh scripting practices
 - `REQUIREMENTS-Zsh_Snippet_Scripting_Best_Practices.md` - For Snippet-specific implementation details
 
-As a Zsh Snippet, this script must remain under 100 lines of code (excluding comments and variable declarations) and follow the execution flow, error handling, parameter processing, and documentation standards defined in those documents.
+As a Zsh Snippet, this script must remain under 200 lines of code (excluding comments and variable declarations) and follow the execution flow, error handling, parameter processing, and documentation standards defined in those documents.
 
 ## Functionality
 - Retrieve the **first commit (Inception Commit)** of a Git repository.
