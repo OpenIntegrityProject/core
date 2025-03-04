@@ -1,6 +1,11 @@
-_file: `https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md`_
+# Issues - Zsh Core Scripting Requirements and Best Practices
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md`_
+> - _github: [Zsh Core Scripting Requirements and Best Practices](https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md)_
+> - _Updated: 2025-02-27 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
-# Zsh Core Best Practices Issues
+[![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
+[![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
 
 Issues related to the [Zsh Core Scripting Requirements and Best Practices](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md).
 
@@ -41,6 +46,7 @@ Issues related to the [Zsh Core Scripting Requirements and Best Practices](https
 **Proposed Actions:**
 1. Choose a single, clear term for the convention:
    - Research other names used for this case convention
+     - `lowerfirst_Pascal_Snake_Case` is one suggestion.
    - Consider established terms like "initial-lowercase with capitalized words"
    - Or define a new term with explicit format rules
    - Ensure the chosen term is consistently used throughout documentation
@@ -65,3 +71,6 @@ Issues related to the [Zsh Core Scripting Requirements and Best Practices](https
    - Aligns with other naming conventions in the codebase
 
 5. Update all related documentation to use the chosen terminology consistently
+
+**Progress:**
+- For now I've searched and replaced function requirements that had `lowerfirst_Camel_Case`to `lowerfirst_Pascal_Snake_Case`.
