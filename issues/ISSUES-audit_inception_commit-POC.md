@@ -1,6 +1,3 @@
-Here's the updated `ISSUES-audit_inception_commit-POC.md` document with the new issues integrated and the regression test issue resolved:
-
-```markdown
 # Issues related to the `audit_inception_commit-POC.sh` Open Integrity Tool
 > - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/issues/ISSUES-audit_inception_commit-POC.md`_
 > - _github: [`scripts/issues/ISSUES-audit_inception_commit-POC.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-audit_inception_commit-POC.md)_
@@ -172,16 +169,18 @@ In version 0.1.04, we addressed the GitHub integration exit code test failures b
 
 3. Ensured the `oi_Comply_With_GitHub_Standards` function returns `Exit_Status_Success` even in non-critical failure cases, to prevent affecting overall script success status.
 
-**Open Question:**
-There is an architectural design question that remains open: should the script return different exit codes for:
-1. A successful audit of a local repository (current behavior: exit code 1)
-2. A successful audit of a GitHub-connected repository (current behavior: exit code 1)
+**Architectural Decision:**
+After consideration, we've determined that non-zero exit codes should fundamentally represent issues with the first phases of Progressive Trust against the local repository. If those phases pass locally, the result should be exit code 0.
 
-The original proposal in this issue suggests that GitHub integration should be non-critical, returning exit code 0 for both cases when core tests pass. The current implementation still returns exit code 1 in both cases, with the difference that we've updated test expectations to match this behavior.
+Problems in phases 4 and 5 (like GitHub integration verification) should be reported differently, more like "warnings" rather than affecting the core exit code. This approach:
 
-A future version may implement this distinction to better support automation scenarios.
+1. Better aligns with the Unix philosophy (0 = success)
+2. Provides a clear binary indicator for core local trustworthiness
+3. Enables more predictable automation in CI/CD pipelines
 
-**Status:** PARTIALLY RESOLVED (Test alignment completed, architectural decision pending)
+This decision will be implemented in a future version, while the current version maintains backward compatibility with exit code 1 for both local and GitHub repository audits.
+
+**Status:** PARTIALLY RESOLVED (Test alignment completed, architectural decision made but not yet implemented)
 
 ### ISSUE: Limited Error Message Context and Actionability (Priority: High)
 **Context:** Error messages lack sufficient detail and actionable guidance for troubleshooting
