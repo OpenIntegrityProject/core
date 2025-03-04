@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 ########################################################################
 ## Script:        TEST-audit_inception_commit.sh
-## Version:       0.1.04 (2025-03-04)
+## Version:       0.1.05 (2025-03-04)
 ## Origin:        https://github.com/OpenIntegrityProject/scripts/blob/main/tests/TEST-audit_inception_commit.sh
 ## Description:   Tests the audit_inception_commit-POC.sh script for compliance with
 ##                Open Integrity requirements and verifies all CLI options.
@@ -13,6 +13,12 @@
 ## Usage:         TEST-audit_inception_commit.sh [-v|--verbose]
 ## Examples:      TEST-audit_inception_commit.sh 
 ##                TEST-audit_inception_commit.sh --verbose
+## Change Log:
+##                0.1.05 (2025-03-04) - Updated exit code expectations to match new
+##                behavior in audit_inception_commit-POC.sh v0.1.05:
+##                * Changed expected exit code from 1 to 0 for successful tests
+##                * Updated test patterns to match new output format
+##                * Added proper identification of phase classification in output checking
 ########################################################################
 
 # Reset the shell environment to a known state
@@ -23,7 +29,7 @@ setopt errexit nounset pipefail localoptions warncreateglobal
 
 # Script constants
 typeset -r Script_Name=$(basename "$0")
-typeset -r Script_Version="0.1.04"
+typeset -r Script_Version="0.1.05"
 typeset -r Script_Dir=$(dirname "$0:A")
 typeset -r Repo_Root=$(realpath "${Script_Dir}/..")
 
@@ -335,11 +341,11 @@ test_Help_And_Basic_Functionality() {
         0 \
         "USAGE:"
     
-    # Always expect exit code 1 for the basic repository audit
-    # This is because GitHub integration will always fail without a real GitHub repository
+    # Expect exit code 0 for successful repository audit (even with GitHub integration warnings)
+    # The new architectural approach separates local validation (phases 1-3) from remote validation (phases 4-5)
     z_Run_Test "Basic repository audit" \
         "\"$Target_Script\" -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "in compliance with Open Integrity specification"
     
     return $Exit_Status_Success
@@ -358,46 +364,46 @@ test_Help_And_Basic_Functionality() {
 test_CLI_Options() {
     print "\n===== Testing CLI options ====="
     
-    # Always expect exit code 1 for these tests
+    # Expect exit code 0 for successful tests
     z_Run_Test "Verbose mode" \
         "\"$Target_Script\" --verbose -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Trust Assessment Summary:"
     
     z_Run_Test "Debug mode" \
         "\"$Target_Script\" --debug -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Framework argument processing:"
     
     z_Run_Test "Quiet mode" \
         "\"$Target_Script\" --quiet -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Audit Complete:"
     
     z_Run_Test "No color option" \
         "\"$Target_Script\" --no-color -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Audit Complete:"
     
     z_Run_Test "Force color option" \
         "\"$Target_Script\" --color -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Audit Complete:"
     
     z_Run_Test "No prompt option" \
         "\"$Target_Script\" --no-prompt -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Audit Complete:"
     
     z_Run_Test "Interactive option" \
         "echo N | \"$Target_Script\" --interactive -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Audit Complete:"
     
     z_Run_Test "Combined options (verbose + debug)" \
         "\"$Target_Script\" --verbose --debug -C \"$Valid_Repo\"" \
-        1 \
-        "Script completed successfully"
+        0 \
+        "Exit code from execute_Audit_Phases: 0"
     
     return $Exit_Status_Success
 }
@@ -449,10 +455,10 @@ test_Error_Cases() {
 test_Identity_Verification() {
     print "\n===== Testing identity verification ====="
     
-    # Based on the output, we should expect exit code 1
+    # Identity verification should now return exit code 0 for successful verification
     z_Run_Test "Identity verification" \
         "\"$Target_Script\" --verbose -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Identity Check: Committer matches key fingerprint"
     
     return $Exit_Status_Success
@@ -471,20 +477,20 @@ test_Identity_Verification() {
 test_Environment_Variables() {
     print "\n===== Testing environment variables ====="
     
-    # Always expect exit code 1 for these tests
+    # Environment variables tests should also return exit code 0 for successful verification
     z_Run_Test "NO_COLOR environment variable" \
         "NO_COLOR=1 \"$Target_Script\" -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Audit Complete:"
     
     z_Run_Test "FORCE_COLOR environment variable" \
         "FORCE_COLOR=1 \"$Target_Script\" -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Audit Complete:"
     
     z_Run_Test "CI environment variable" \
         "CI=1 \"$Target_Script\" -C \"$Valid_Repo\"" \
-        1 \
+        0 \
         "Audit Complete:"
     
     return $Exit_Status_Success
@@ -561,24 +567,22 @@ test_GitHub_Integration() {
     github_cleanup_needed=$TRUE
     
     # Now run tests on this GitHub-connected repository
-    # NOTE (2025-03-03): The audit script returns exit code 1 for both local and GitHub repositories,
-    # even when all tests pass. This is by design, as the GitHub standards check is considered
-    # non-critical. The test expectations have been updated to reflect this actual behavior.
-    # Future versions may want to distinguish between local (exit code 1) and GitHub repositories
-    # (exit code 0) once more GitHub-specific features are implemented.
+    # NOTE (2025-03-04): The audit script now returns exit code 0 for both local and GitHub repositories
+    # when all local verification phases pass (phases 1-3), even if remote phases (4-5) have warnings.
+    # This implements the architectural decision to separate local verification from remote verification.
     z_Run_Test "Full GitHub integration" \
         "\"$Target_Script\" -C \"$GitHub_Repo_Path\"" \
-        1 \
+        0 \
         "in compliance with Open Integrity specification"
     
     z_Run_Test "GitHub standards compliance check" \
         "echo 'Y' | \"$Target_Script\" --interactive -C \"$GitHub_Repo_Path\"" \
-        1 \
+        0 \
         "Community Standards:"
     
     z_Run_Test "GitHub integration with verbose mode" \
         "\"$Target_Script\" --verbose -C \"$GitHub_Repo_Path\"" \
-        1 \
+        0 \
         "Trust Assessment Summary:"
     
     # Clean up the GitHub repository
