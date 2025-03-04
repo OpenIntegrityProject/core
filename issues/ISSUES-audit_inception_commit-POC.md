@@ -108,7 +108,7 @@ These issues remain to be addressed in future versions:
 
 Here are the descriptions for these two issues formatted for inclusion in the `ISSUES-audit_inception_commit-POC.md` document:
 
-### ISSUE: Inconsistent Exit Code Behavior (Priority: High)
+### ISSUE: Inconsistent Exit Code Behavior (Priority: High) - RESOLVED
 **Context:** The script returns inconsistent exit codes across different execution scenarios
 **Current:** Returns exit code 1 (failure) even for successful audits when GitHub integration is unavailable
 **Impact:** Creates confusion for automation tools, CI/CD pipelines, and regression testing
@@ -121,66 +121,65 @@ Here are the descriptions for these two issues formatted for inclusion in the `I
 - Standardize exit code usage across all execution paths
 - Add exit code documentation in help text
 
-For example:
-```zsh
-# Before: Always treats GitHub integration as critical
-if (( CriticalPhasesPassed == CriticalPhasesTotal && GitHubIntegrationPassed )); then
-    return $Exit_Status_Success
-else
-    return $Exit_Status_General
-fi
+**Initial Resolution in 0.1.04 (2025-03-04):**
+In version 0.1.04, we initially addressed the GitHub integration exit code test failures by updating the test script expectations rather than modifying the audit script's behavior. Key changes:
 
-# After: Treats GitHub integration as non-critical
-if (( CriticalPhasesPassed == CriticalPhasesTotal )); then
-    # Even if GitHub integration fails, core audit passes
-    return $Exit_Status_Success
-else
-    return $Exit_Status_General
-fi
-```
+1. Updated the test script to expect exit code 1 for successful GitHub integration tests
+2. Added documentation in the audit script to clarify the current behavior
+3. Ensured the `oi_Comply_With_GitHub_Standards` function returns `Exit_Status_Success` even in non-critical failure cases
+4. Documented the architectural decision that would guide our future implementation
 
-**Partial Resolution in 0.1.04 (2025-03-04):**
-In version 0.1.04, we addressed the GitHub integration exit code test failures by updating the test script expectations rather than modifying the audit script's behavior. Key changes:
+**Final Resolution in 0.1.05 (2025-03-04):**
+In version 0.1.05, we fully implemented the architectural decision for exit codes:
 
-1. Updated the test script to expect exit code 1 for successful GitHub integration tests:
+1. Updated the `execute_Audit_Phases` function to classify phases by type:
    ```zsh
-   # Now run tests on this GitHub-connected repository
-   # NOTE (2025-03-03): The audit script returns exit code 1 for both local and GitHub repositories,
-   # even when all tests pass. This is by design, as the GitHub standards check is considered
-   # non-critical. The test expectations have been updated to reflect this actual behavior.
-   z_Run_Test "Full GitHub integration" \
-       "\"$Target_Script\" -C \"$GitHub_Repo_Path\"" \
-       1 \
-       "in compliance with Open Integrity specification"
+   # Initialize audit state tracking for local phases (phases 1-3)
+   typeset -i LocalAssessmentSuccess=$TRUE
+    
+   # Initialize audit state tracking for remote phases (phases 4-5)
+   typeset -i RemoteAssessmentSuccess=$TRUE
    ```
 
-2. Added documentation in the audit script to clarify the current behavior:
+2. Implemented phase-aware exit code handling:
    ```zsh
-   # Return appropriate exit status based on audit success
-   if (( AuditSuccess == TRUE )); then
-       # All critical checks passed, return success
-       # NOTE: The audit script always returns Exit_Status_Success (0) when all required
-       # checks pass, regardless of whether the repository is on GitHub or not.
-       # The GitHub standards check is considered non-critical and doesn't affect
-       # the exit code.
+   # Return appropriate exit status based on local assessment success
+   if (( LocalAssessmentSuccess == TRUE )); then
+       # All local verification phases passed (phases 1-3), return success
+       # regardless of remote assessment status (phases 4-5)
        return $Exit_Status_Success
-   }
+   else
+       # One or more local verification phases failed (phases 1-3)
+       return $Exit_Status_General
+   fi
    ```
 
-3. Ensured the `oi_Comply_With_GitHub_Standards` function returns `Exit_Status_Success` even in non-critical failure cases, to prevent affecting overall script success status.
+3. Added clear output formatting to distinguish between critical and non-critical issues:
+   ```zsh
+   # Remote phases (4-5) - don't affect exit code, shown as warnings if failed
+   typeset IdentityEmoji="⚠️"
+   if (( ${Trust_Assessment_Status[identity]:-0} == TRUE )); then
+       IdentityEmoji="✅"
+   fi
+   
+   typeset IdentityWarning=""
+   if (( ${Trust_Assessment_Status[identity]:-0} != TRUE )); then
+       IdentityWarning=" (warning only)"
+   fi
+   ```
 
-**Architectural Decision:**
-After consideration, we've determined that non-zero exit codes should fundamentally represent issues with the first phases of Progressive Trust against the local repository. If those phases pass locally, the result should be exit code 0.
+4. Updated regression tests to expect exit code 0 for successful test cases (even with GitHub warnings)
 
-Problems in phases 4 and 5 (like GitHub integration verification) should be reported differently, more like "warnings" rather than affecting the core exit code. This approach:
+**Architectural Decision Implemented:**
+The implemented solution aligns with the architectural decision that was made:
 
-1. Better aligns with the Unix philosophy (0 = success)
-2. Provides a clear binary indicator for core local trustworthiness
-3. Enables more predictable automation in CI/CD pipelines
+1. Non-zero exit codes (1) now only represent issues with local repository verification (phases 1-3)
+2. Issues with remote verification phases (4-5) are now reported as warnings but don't affect the exit code
+3. A repository that passes phases 1-3 now returns exit code 0, even if phases 4-5 have warnings
 
-This decision will be implemented in a future version, while the current version maintains backward compatibility with exit code 1 for both local and GitHub repository audits.
+This implementation better aligns with the Unix philosophy (0 = success), provides a clear binary indicator for core local trustworthiness, and enables more predictable automation in CI/CD pipelines.
 
-**Status:** PARTIALLY RESOLVED (Test alignment completed, architectural decision made but not yet implemented)
+**Status:** RESOLVED in 0.1.05 - Implemented architectural decision for exit codes
 
 ### ISSUE: Limited Error Message Context and Actionability (Priority: High)
 **Context:** Error messages lack sufficient detail and actionable guidance for troubleshooting
