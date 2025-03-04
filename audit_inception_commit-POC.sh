@@ -6,7 +6,7 @@
 ## audit_inception_commit-POC.sh
 ## - Open Integrity Audit of a Git Repository Inception Commit
 ##
-## VERSION:      0.1.04 (2025-03-04)
+## VERSION:      0.1.05 (2025-03-04)
 ##
 ## DESCRIPTION:
 ##   This script performs a multi-part review of a Git repository's inception
@@ -106,12 +106,17 @@
 ##   This script can be integrated into CI/CD pipelines, pre-commit hooks,
 ##   or used as a standalone verification tool. It returns standard exit
 ##   codes that can be used for automated decision making:
-##     0  - All checks passed successfully
-##     1  - General failure or audit failure
+##     0  - Local verification phases (1-3) passed successfully, even if
+##          remote phases (4-5) have warnings
+##     1  - General failure or local verification failure
 ##     2  - Invalid usage or arguments
 ##     5  - Git repository error (not a repo, commit issues)
 ##     6  - Configuration error
 ##     127 - Missing dependency
+##
+##   Note that only failures in local verification phases (1-3) will produce
+##   non-zero exit codes. Issues with remote verification phases (4-5) are
+##   reported as warnings but don't affect the exit code.
 ##
 ## LICENSE:
 ##   (c) 2025 By Blockchain Commons LLC
@@ -137,6 +142,19 @@
 ########################################################################
 ## CHANGE LOG
 ########################################################################
+## 0.1.05   - Fixed Exit Code Behavior (2025-03-04)
+##          - Implemented the architectural decision for exit codes:
+##            * Non-zero exit codes now only returned for issues in phases 1-3
+##            * Issues in phases 4-5 reported as warnings without affecting exit code
+##            * Success (exit code 0) now returned for repositories that pass
+##              local verification even if GitHub integration is unavailable
+##          - Updated comments and documentation to reflect new behavior:
+##            * Added tracking of phase numbers in Trust_Assessment_Status
+##            * Improved error reporting with phase information
+##          - Fixed exit code inconsistency by using explicit exit statements
+##          - Improved output with clear warnings for non-critical issues
+##          - Updated regression tests to match new exit code behavior
+##
 ## 0.1.04   - GitHub Integration Test Fix (2025-03-04)
 ##          - Fixed GitHub integration testing issues:
 ##            * Updated test script to expect exit code 1 for GitHub repositories
@@ -267,7 +285,7 @@ setopt no_list_ambiguous # Disables ambiguous globbing behavior
 
 # Script constants
 typeset -r Script_Name=$(basename "$0")
-typeset -r Script_Version="0.1.04"
+typeset -r Script_Version="0.1.05"
 
 #----------------------------------------------------------------------#
 # Script-Scoped Variables - Boolean Constants
@@ -443,14 +461,23 @@ typeset Repo_DID                      # Stores the repository DID
 
 # Associative array for tracking assessment status
 typeset -A Trust_Assessment_Status
-# Initialize with all phases set to FALSE
+# Initialize with all assessments set to FALSE and their phase numbers
 Trust_Assessment_Status=(
+    # Assessment results
     "structure" $FALSE
     "content" $FALSE
     "format" $FALSE
     "signature" $FALSE
     "identity" $FALSE
     "standards" $FALSE
+    
+    # Phase numbers for each assessment (for exit code determination)
+    "structure_phase" 2  # Wholeness - local
+    "content_phase" 2    # Wholeness - local
+    "format_phase" 2     # Wholeness - local
+    "signature_phase" 3  # Cryptographic Proofs - local
+    "identity_phase" 4   # Trust References - remote
+    "standards_phase" 5  # Community Standards - remote
 )
 
 ########################################################################
@@ -2362,30 +2389,30 @@ function parse_Remaining_Arguments {
 #----------------------------------------------------------------------#
 # Description:
 #   Coordinates the execution of Progressive Trust audit phases for
-#   inception commit verification. This function orchestrates the
-#   process by calling domain-specific verification functions in
-#   sequential order and tracking results.
+#   inception commit assessment. This function orchestrates the
+#   process by calling domain-specific functions in sequential order
+#   and tracking results.
 #
 # Parameters:
 #   None
 #
 # Returns:
-#   Exit_Status_Success (0) if all critical audit phases pass
-#   Exit_Status_General (1) if any critical audit phase fails
-#   Exit_Status_Git_Failure (5) if repository structure verification fails
+#   Exit_Status_Success (0) if all local assessment phases (1-3) pass
+#   Exit_Status_General (1) if any local assessment phase fails
+#   Exit_Status_Git_Failure (5) if repository structure checks fail
 #
 # Required Script Variables:
-#   Inception_Commit_Repo_Id - Set to inception commit hash for verification
+#   Inception_Commit_Repo_Id - Set to inception commit hash for assessment
 #   Repo_DID - Set to repository DID
-#   Trust_Assessment_Status - Associative array tracking verification results
+#   Trust_Assessment_Status - Associative array tracking assessment results
 #
 # Side Effects:
-#   - Updates Trust_Assessment_Status array with verification results
-#   - Produces verification status output
+#   - Updates Trust_Assessment_Status array with assessment results
+#   - Produces assessment status output
 #   - Updates Inception_Commit_Repo_Id and Repo_DID
 #
 # Dependencies:
-#   - Domain Layer verification functions:
+#   - Domain Layer functions:
 #     * oi_Locate_Inception_Commit
 #     * oi_Assess_Empty_Commit
 #     * oi_Assess_Commit_Message_Format
@@ -2398,50 +2425,80 @@ function parse_Remaining_Arguments {
 #   execute_Audit_Phases || return $?
 #----------------------------------------------------------------------#
 function execute_Audit_Phases {
-    # Initialize audit state
-    typeset -i AuditSuccess=$TRUE
+    # Initialize audit state tracking for local phases (phases 1-3)
+    typeset -i LocalAssessmentSuccess=$TRUE
+    
+    # Initialize audit state tracking for remote phases (phases 4-5)
+    typeset -i RemoteAssessmentSuccess=$TRUE
 
     # Main audit header
     z_Output info "\nInception Commit Audit Report" Emoji=""
     z_Output verbose Emoji="" "Evaluating overall inception commit compliance with standards..."
     z_Output verbose Emoji="" ""
 
-    # Wholeness Assessment (Phase 2) header and checks
+    #----------------------------------------------------------------------#
+    # PHASE 2: WHOLENESS ASSESSMENT (LOCAL)
+    #----------------------------------------------------------------------#
     z_Output info "Wholeness Assessment:"
     z_Output verbose Emoji="" "(Progressive Trust Phase 2)"
+    
+    # Track that these checks are part of phase 2 (local)
+    Trust_Assessment_Status[structure_phase]=2
+    Trust_Assessment_Status[content_phase]=2
+    Trust_Assessment_Status[format_phase]=2
+    
+    # Assessment 1: Repository structure (phase 2)
     z_Output verbose Indent=2 Emoji="📌" "Assessing repository structure..."
     if ! oi_Locate_Inception_Commit; then
         return $Exit_Status_Git_Failure
     fi
 
+    # Assessment 2: Commit content (phase 2)
     z_Output verbose Emoji="" ""
     z_Output verbose Indent=2 Emoji="📌" "Assessing commit content..."
     if ! oi_Assess_Empty_Commit "$Inception_Commit_Repo_Id"; then
-        AuditSuccess=$FALSE
+        LocalAssessmentSuccess=$FALSE
     fi
 
+    # Assessment 3: Message format (phase 2)
     z_Output verbose Emoji="" ""
     z_Output verbose Indent=2 Emoji="📌" "Assessing message format..."
     if ! oi_Assess_Commit_Message_Format "$Inception_Commit_Repo_Id"; then
-        AuditSuccess=$FALSE
+        LocalAssessmentSuccess=$FALSE
     fi
 
-    # Cryptographic Proofs (Phase 3) header and checks
+    #----------------------------------------------------------------------#
+    # PHASE 3: CRYPTOGRAPHIC PROOFS (LOCAL)
+    #----------------------------------------------------------------------#
     z_Output verbose Emoji="" ""
     z_Output info "Cryptographic Proofs:"
     z_Output verbose Emoji="" "(Progressive Trust Phase 3)"
+    
+    # Track that this check is part of phase 3 (local)
+    Trust_Assessment_Status[signature_phase]=3
+    
+    # Assessment 4: SSH signature verification (phase 3)
     z_Output verbose Indent=2 Emoji="📌" "Authenticating SSH signature..."
     if ! oi_Authenticate_Ssh_Signature "$Inception_Commit_Repo_Id"; then
-        AuditSuccess=$FALSE
+        LocalAssessmentSuccess=$FALSE
     fi
 
-    # Trust References (Phase 4) header and checks
+    #----------------------------------------------------------------------#
+    # PHASE 4: TRUST REFERENCES (REMOTE)
+    #----------------------------------------------------------------------#
     z_Output verbose Emoji="" ""
     z_Output info "Trust References:"
     z_Output verbose Emoji="" "(Progressive Trust Phase 4)"
+    
+    # Track that this check is part of phase 4 (remote)
+    Trust_Assessment_Status[identity_phase]=4
+    
+    # Assessment 5: Identity references (phase 4)
     z_Output verbose Indent=2 Emoji="📌" "Affirming identity references..."
     if ! oi_Affirm_Committer_Signature "$Inception_Commit_Repo_Id"; then
-        AuditSuccess=$FALSE
+        # Remote assessment failure - don't affect exit code
+        RemoteAssessmentSuccess=$FALSE
+        z_Output warn Indent=2 "Identity reference issue (non-critical for local assessment)"
     fi
 
     # Reference to other useful local git commands with shortened SHA
@@ -2452,30 +2509,36 @@ function execute_Audit_Phases {
     z_Output verbose Indent=4 Emoji="" "Verify inception commit signature:  git verify-commit ${Inception_Commit_Repo_Id:0:7}"
     z_Output verbose Emoji="" ""
     
+    #----------------------------------------------------------------------#
+    # PHASE 5: STANDARDS COMPLIANCE (REMOTE)
+    #----------------------------------------------------------------------#
     # Initialize GitHub repository flag
     typeset -i Is_GitHub_Repository=$FALSE
+    
+    # Track that this check is part of phase 5 (remote)
+    Trust_Assessment_Status[standards_phase]=5
 
     # Standards Compliance (Phase 5) checks - non-critical
-    # Removed the empty line after GitHub compliance check
     if ! oi_Comply_With_GitHub_Standards "${Inception_Commit_Repo_Id}"; then
         # Non-critical failure, we continue without affecting overall result
-        z_Output warn "GitHub compliance check skipped or failed (non-critical)"
+        z_Output warn "GitHub compliance check skipped or failed (non-critical for local assessment)"
+        RemoteAssessmentSuccess=$FALSE
         Is_GitHub_Repository=$FALSE
     else
         # GitHub standards check succeeded - repository is on GitHub
         Is_GitHub_Repository=$TRUE
     fi
 
-    # Return appropriate exit status based on audit success
-    if (( AuditSuccess == TRUE )); then
-        # All critical checks passed, return success
-        # NOTE: The audit script always returns Exit_Status_Success (0) when all required
-        # checks pass, regardless of whether the repository is on GitHub or not.
-        # The GitHub standards check is considered non-critical and doesn't affect
-        # the exit code.
+    #----------------------------------------------------------------------#
+    # DETERMINE EXIT STATUS
+    #----------------------------------------------------------------------#
+    # Return appropriate exit status based on local assessment success
+    if (( LocalAssessmentSuccess == TRUE )); then
+        # All local assessment phases passed (phases 1-3), return success
+        # regardless of remote assessment status (phases 4-5)
         return $Exit_Status_Success
     else
-        # One or more critical checks failed
+        # One or more local assessment phases failed (phases 1-3)
         return $Exit_Status_General
     fi
 }
@@ -2525,20 +2588,20 @@ function execute_Audit_Phases {
 #----------------------------------------------------------------------#
 # Description:
 #   Coordinates the main audit workflow, managing the execution of
-#   verification phases and presenting results. This function is
+#   assessment phases and presenting results. This function is
 #   responsible for the overall flow of the audit process.
 #
 # Parameters:
 #   None
 #
 # Returns:
-#   Exit_Status_Success (0) if audit completes successfully
-#   Exit_Status_General (1) if audit fails
+#   Exit_Status_Success (0) if all local assessment phases (1-3) pass
+#   Exit_Status_General (1) if any local assessment phase fails
 #
 # Required Script Variables:
 #   Inception_Commit_Repo_Id - Inception commit hash from audit process
 #   Repo_DID - Repository DID from audit process
-#   Trust_Assessment_Status - Associative array tracking verification results
+#   Trust_Assessment_Status - Associative array tracking assessment results
 #   Output_Verbose_Mode - Controls output verbosity
 #
 # Side Effects:
@@ -2546,7 +2609,7 @@ function execute_Audit_Phases {
 #   - May open web browser for GitHub compliance check
 #
 # Dependencies:
-#   - execute_Audit_Phases for running verification phases
+#   - execute_Audit_Phases for running assessment phases
 #   - z_Output for status messaging
 #   - z_Convert_Path_To_Relative for path display
 #
@@ -2555,41 +2618,111 @@ function execute_Audit_Phases {
 #----------------------------------------------------------------------#
 function core_Logic {
     # Execute audit phases
-    if ! execute_Audit_Phases; then
-        z_Output error "Audit Complete: FAILED"
-        return $Exit_Status_General
-    fi
+    typeset AuditExitCode
+    execute_Audit_Phases
+    AuditExitCode=$?
+    z_Output debug "Exit code from execute_Audit_Phases: $AuditExitCode"
     
     # Display trust assessment summary based on verbosity mode
     if ! (( Output_Verbose_Mode )); then
         # Condensed summary for non-verbose mode
         z_Output info "\nTrust Assessment Results:"
-        z_Output info Indent=2 Emoji="✅" "Wholeness (structure, content, format)"
-        z_Output info Indent=2 Emoji="✅" "Cryptographic Proofs (signature)"
-        z_Output info Indent=2 Emoji="✅" "Trust References (identity)"
-        z_Output info Indent=2 Emoji="✅" "Community Standards (GitHub)"
+        
+        # Use the phase information to categorize into local vs remote phases
+        # Local phases (1-3) - affect exit code
+        # Use proper zsh conditional expressions for emoji selection
+        typeset StructureEmoji="❌"
+        if (( ${Trust_Assessment_Status[structure]:-0} == TRUE )); then
+            StructureEmoji="✅"
+        fi
+        
+        typeset SignatureEmoji="❌"
+        if (( ${Trust_Assessment_Status[signature]:-0} == TRUE )); then
+            SignatureEmoji="✅"
+        fi
+        
+        z_Output info Indent=2 Emoji="$StructureEmoji" "Wholeness (structure, content, format) - Phase 2"
+        z_Output info Indent=2 Emoji="$SignatureEmoji" "Cryptographic Proofs (signature) - Phase 3"
+        
+        # Remote phases (4-5) - don't affect exit code, shown as warnings if failed
+        typeset IdentityEmoji="⚠️"
+        if (( ${Trust_Assessment_Status[identity]:-0} == TRUE )); then
+            IdentityEmoji="✅"
+        fi
+        
+        typeset StandardsEmoji="⚠️"
+        if (( ${Trust_Assessment_Status[standards]:-0} == TRUE )); then
+            StandardsEmoji="✅"
+        fi
+        
+        typeset IdentityWarning=""
+        if (( ${Trust_Assessment_Status[identity]:-0} != TRUE )); then
+            IdentityWarning=" (warning only)"
+        fi
+        
+        typeset StandardsWarning=""
+        if (( ${Trust_Assessment_Status[standards]:-0} != TRUE )); then
+            StandardsWarning=" (warning only)"
+        fi
+        
+        z_Output info Indent=2 Emoji="$IdentityEmoji" "Trust References (identity) - Phase 4${IdentityWarning}"
+        z_Output info Indent=2 Emoji="$StandardsEmoji" "Community Standards (GitHub) - Phase 5${StandardsWarning}"
         z_Output info Emoji="" ""
     else
         # Comprehensive assessment summary for verbose mode
         z_Output verbose Emoji="" "\nTrust Assessment Summary:"
-        typeset CurrentPhase StatusValue StatusIcon
+        typeset CurrentPhase StatusValue StatusIcon PhaseNum PhaseType
+        
         for CurrentPhase in "structure" "content" "format" "signature" "identity" "standards"; do
             StatusValue="${Trust_Assessment_Status[$CurrentPhase]:-0}"
-            StatusIcon="$([[ $StatusValue == $TRUE ]] && echo "✅" || echo "❌")"
-            z_Output verbose Indent=2 Emoji="" "$StatusIcon Phase assessment: $CurrentPhase"
+            PhaseNum="${Trust_Assessment_Status[${CurrentPhase}_phase]:-0}"
+            
+            # Determine if this is a local phase (affects exit code) or remote phase (warning only)
+            if (( PhaseNum <= 3 )); then
+                PhaseType="(local - affects exit code)"
+                if (( StatusValue == TRUE )); then
+                    StatusIcon="✅"
+                else
+                    StatusIcon="❌"
+                fi
+            else
+                PhaseType="(remote - warning only)"
+                if (( StatusValue == TRUE )); then
+                    StatusIcon="✅"
+                else
+                    StatusIcon="⚠️"
+                fi
+            fi
+            
+            z_Output verbose Indent=2 Emoji="" "$StatusIcon Phase $PhaseNum assessment: $CurrentPhase $PhaseType"
         done
     fi
     
-    # Calculate overall assessment status
-    typeset -i CriticalPhasesPassed=0
-    typeset -i CriticalPhasesTotal=5  # structure, content, format, signature, identity
+    # Calculate local vs. remote phase status
+    typeset -i LocalPhasesPassed=0
+    typeset -i LocalPhasesTotal=0
+    typeset -i RemotePhasesPassed=0
+    typeset -i RemotePhasesTotal=0
     
-    # Count critical phases that passed
-    typeset CheckPhase
-    for CheckPhase in structure content format signature identity; do
-        # Force comparison as integers with direct value access
-        if (( ${Trust_Assessment_Status[$CheckPhase]:-0} == TRUE )); then
-            (( CriticalPhasesPassed++ ))
+    # Count phases by type
+    typeset CheckPhase PhaseNum
+    for CheckPhase in structure content format signature identity standards; do
+        # Get phase number
+        PhaseNum="${Trust_Assessment_Status[${CheckPhase}_phase]:-0}"
+        
+        # Process based on phase type
+        if (( PhaseNum <= 3 )); then
+            # Local phases (1-3)
+            (( LocalPhasesTotal++ ))
+            if (( ${Trust_Assessment_Status[$CheckPhase]:-0} == TRUE )); then
+                (( LocalPhasesPassed++ ))
+            fi
+        else
+            # Remote phases (4-5)
+            (( RemotePhasesTotal++ ))
+            if (( ${Trust_Assessment_Status[$CheckPhase]:-0} == TRUE )); then
+                (( RemotePhasesPassed++ ))
+            fi
         fi
     done
     
@@ -2597,15 +2730,29 @@ function core_Logic {
     typeset RepoRelativePath
     RepoRelativePath="$(z_Convert_Path_To_Relative "$PWD")"
     
-    # Final audit status
-    if (( CriticalPhasesPassed == CriticalPhasesTotal )); then
-        z_Output success Emoji="🎯" "Audit Complete: Git repo at \`$RepoRelativePath\` (DID: $Repo_DID)\n   in compliance with Open Integrity specification for Inception Commits." Force=1
-        z_Output verbose Emoji="" Indent=3 "(Progressive Trust phases 1-5 passed.)"
-        return $Exit_Status_Success
+    # Final audit status - based on local phases only (1-3)
+    # Debug the final exit code decision
+    z_Output debug "Making exit code decision. AuditExitCode=$AuditExitCode, Exit_Status_Success=$Exit_Status_Success"
+    
+    if (( AuditExitCode == Exit_Status_Success )); then
+        # All local phases passed
+        if (( RemotePhasesPassed == RemotePhasesTotal )); then
+            # All phases passed, local and remote
+            z_Output success Emoji="🎯" "Audit Complete: Git repo at \`$RepoRelativePath\` (DID: $Repo_DID)\n   in compliance with Open Integrity specification for Inception Commits." Force=1
+            z_Output verbose Emoji="" Indent=3 "(Progressive Trust phases 1-5 passed.)"
+        else
+            # Local phases passed, but some remote phases had warnings
+            z_Output success Emoji="🎯" "Audit Complete: Git repo at \`$RepoRelativePath\` (DID: $Repo_DID)\n   in compliance with Open Integrity specification for local assessment.\n   Some remote assessment warnings noted." Force=1
+            z_Output verbose Emoji="" Indent=3 "(Progressive Trust phases 1-3 passed, phases 4-5 have warnings.)"
+        fi
+        z_Output debug "Returning Exit_Status_Success=$Exit_Status_Success"
+        exit $Exit_Status_Success  # Use exit instead of return to force the exit code
     else
-        z_Output warn Emoji="⚠️" "Audit Complete: Git repo at \`$RepoRelativePath\` (DID: $Repo_DID)\n   has issues with Open Integrity specification compliance." Force=1
-        z_Output verbose Emoji="" Indent=3 "(Some Progressive Trust phases failed.)"
-        return $Exit_Status_General
+        # Some local phases failed
+        z_Output error Emoji="❌" "Audit Complete: Git repo at \`$RepoRelativePath\` (DID: $Repo_DID)\n   has critical issues with Open Integrity specification compliance." Force=1
+        z_Output verbose Emoji="" Indent=3 "(Some Progressive Trust local phases 1-3 failed.)"
+        z_Output debug "Returning Exit_Status_General=$Exit_Status_General"
+        exit $Exit_Status_General  # Use exit instead of return to force the exit code
     fi
 }
 
