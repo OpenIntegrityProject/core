@@ -313,7 +313,14 @@ By implementing these actions, we ensure that when a repository transitions to *
 - Develop visual indicators in human-readable output (colors, emoji, sections)
 - Document the warning reporting standard for all Open Integrity tools
 
-**Status:** OPEN (Added 2025-03-04)
+**Progress:**
+- 2025-03-04: Implemented architectural decision in `audit_inception_commit-POC.sh` (v0.1.05) that:
+  - Uses exit code 0 when local verification phases (1-3) pass, even if remote phases (4-5) have warnings
+  - Shows warning emoji (⚠️) for remote phase issues rather than error symbols
+  - Explicitly labels remote phase issues as "(warning only)" in output
+  - Updated documentation to clarify exit code behavior across phases
+
+**Status:** IN PROGRESS (Implemented in audit script, needs system-wide standardization)
 
 ## Code Reuse and Modularity
 
@@ -328,8 +335,13 @@ By implementing these actions, we ensure that when a repository transitions to *
 - Develop a standard error message format
 - Ensure all scripts follow the same error handling pattern
 **Progress:**
-- 2025-02-26 There are now some recommended error codes, best practices and examples in [Zsh Core Scripting Requirements and Best Practices: §Error Handling Requirment](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md#zsh-core-scripting---error-handling-requirements)
-- 2025-03-04 Added architectural decision: non-zero exit codes should fundamentally represent issues with the first phases of Progressive Trust against the local repository (phases 1-3). Problems in phases 4-5 should be reported as warnings rather than affecting exit codes.
+- 2025-02-26: Added recommended error codes, best practices and examples in [Zsh Core Scripting Requirements and Best Practices: §Error Handling Requirment](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md#zsh-core-scripting---error-handling-requirements)
+- 2025-03-04: Added architectural decision: non-zero exit codes should fundamentally represent issues with the first phases of Progressive Trust against the local repository (phases 1-3). Problems in phases 4-5 should be reported as warnings rather than affecting exit codes.
+- 2025-03-04: Implemented this architectural decision in `audit_inception_commit-POC.sh` v0.1.05:
+  - Made local verification failures (phases 1-3) return non-zero exit codes
+  - Made remote verification issues (phases 4-5) display as warnings without affecting exit codes
+  - Added clear visual differentiation of local vs. remote phase issues in output
+  - Updated documentation to explain exit code behavior reasoning
 
 ### ISSUE: Limited Code Reusability
 **Context:** Scripts lack a clear modular structure for easy reuse
