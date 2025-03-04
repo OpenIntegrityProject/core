@@ -24,6 +24,75 @@ Each issue is structured with:
 - **Proposed Actions**: Recommended steps to address the issue
 - **Status/Progress**: Current status of the issue (RESOLVED, IN PROGRESS, or OPEN)
 
+## Progressive Trust
+
+### ISSUE: System-Wide Progressive Trust Terminology Standardization (High Priority)
+**Context:** Progressive Trust is a foundational concept in the Open Integrity Project that requires consistent terminology across all scripts and documentation. Recent work has clarified the specific terminology that should be used for each phase.
+
+**Current:** While we've created `REQUIREMENTS-Progressive_Trust_Terminology.md` with detailed guidelines and examples, many existing scripts do not consistently follow these guidelines. Specific issues include:
+1. Inconsistent use of phase-specific verbs (`assess` vs `assure` vs `verify` vs `affirm` vs `audit`)
+2. Some function names don't properly reflect their phase of operation
+3. Documentation and comments don't consistently use phase-appropriate terminology
+4. Variable names sometimes mix terminology from different phases
+5. Output messages don't clearly indicate which Progressive Trust phase they relate to
+
+**Impact:** 
+- **Conceptual Confusion:** Inconsistent terminology creates confusion about which Progressive Trust phase an operation belongs to
+- **Reduced Clarity:** Users and developers may misunderstand the level of trust being established
+- **Documentation Inconsistency:** Makes it difficult to understand how different scripts relate to the Progressive Trust model
+- **Maintenance Challenges:** New contributors may not understand the importance of using phase-specific terminology
+
+**Proposed Actions:**
+1. **Create a Progressive Trust Terminology Audit Tool:**
+   - Develop a script that audits codebase for terminology inconsistencies
+   - Flag function names, variables, and comments that use incorrect phase terminology
+   - Generate detailed reports of needed terminology changes
+
+2. **Implement System-Wide Standards:**
+   - Update all Open Integrity scripts to follow the terminology guidelines
+   - Add phase indicators in output messages and section headers
+   - Standardize function naming patterns across the codebase
+   - Create consistent documentation templates that emphasize phase-specific terminology
+
+3. **Incorporate in Development Workflow:**
+   - Add terminology verification to pre-commit hooks and CI/CD pipelines
+   - Create a terminology checklist for code reviews
+   - Update all script templates with phase-appropriate terminology examples
+
+4. **Training and Documentation:**
+   - Create a quick reference guide for Progressive Trust terminology
+   - Add examples of correct and incorrect terminology usage
+   - Develop a tutorial on applying terminology standards in code
+
+**Progress:**
+- 2025-03-04: Created `REQUIREMENTS-Progressive_Trust_Terminology.md` with detailed guidelines
+- 2025-03-04: Added issue to `ISSUES-audit_inception_commit-POC.md` to address terminology inconsistencies
+- 2025-03-04: Identified specific inconsistencies in existing scripts that need to be addressed
+
+**Status:** IN PROGRESS (Requirements document created, implementation pending)
+
+### Progressive Trust Phase Warning Reporting
+
+### ISSUE: Standardized Warning Reporting for Progressive Trust Phases 4-5
+**Context:** The Progressive Trust model includes phases that extend beyond local repository assessment (phases 1-2) verification (phase 3) to include remote affirmation and conformance (phases 4-5)
+**Current:** Remote verification failures are reported inconsistently and may inappropriately affect exit codes
+**Impact:** Creates confusion for users and automation tools about the severity and meaning of different verification outcomes
+**Proposed Actions:**
+- Define a standardized approach for reporting phase 4-5 "warnings" that doesn't affect exit codes
+- Create a consistent warning reporting mechanism that distinguishes from critical failures
+- Implement structured output format (e.g., JSON) for machine-readable warning information
+- Develop visual indicators in human-readable output (colors, emoji, sections)
+- Document the warning reporting standard for all Open Integrity tools
+
+**Progress:**
+- 2025-03-04: Implemented architectural decision in `audit_inception_commit-POC.sh` (v0.1.05) that:
+  - Uses exit code 0 when local phases (1-3) pass, even if remote phases (4-5) have warnings
+  - Shows warning emoji (⚠️) for remote phase issues rather than error symbols
+  - Explicitly labels remote phase issues as "(warning only)" in output
+  - Updated documentation to clarify exit code behavior across phases
+
+**Status:** IN PROGRESS (Implemented in audit script, needs system-wide standardization)
+
 ## Open Integrity Commit Enforcement
 
 ### ISSUE: Automating GitHub & Git Enforcement of Signed Commits and Sign-Offs
@@ -300,27 +369,6 @@ By implementing these actions, we ensure that when a repository transitions to *
 **Progress:**
 - 2025-02-26 There are now some recommended function documentation requirements for Zsh Snippet at  [Zsh Core Scripting Requirements and Best Practices: § Script Documentation](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md#zsh-snippet-scripting---script-documentation)
 
-## Progressive Trust Phase Warning Reporting
-
-### ISSUE: Standardized Warning Reporting for Progressive Trust Phases 4-5
-**Context:** The Progressive Trust model includes phases that extend beyond local repository verification (phases 1-3) to include remote verification (phases 4-5)
-**Current:** Remote verification failures are reported inconsistently and may inappropriately affect exit codes
-**Impact:** Creates confusion for users and automation tools about the severity and meaning of different verification outcomes
-**Proposed Actions:**
-- Define a standardized approach for reporting phase 4-5 "warnings" that doesn't affect exit codes
-- Create a consistent warning reporting mechanism that distinguishes from critical failures
-- Implement structured output format (e.g., JSON) for machine-readable warning information
-- Develop visual indicators in human-readable output (colors, emoji, sections)
-- Document the warning reporting standard for all Open Integrity tools
-
-**Progress:**
-- 2025-03-04: Implemented architectural decision in `audit_inception_commit-POC.sh` (v0.1.05) that:
-  - Uses exit code 0 when local verification phases (1-3) pass, even if remote phases (4-5) have warnings
-  - Shows warning emoji (⚠️) for remote phase issues rather than error symbols
-  - Explicitly labels remote phase issues as "(warning only)" in output
-  - Updated documentation to clarify exit code behavior across phases
-
-**Status:** IN PROGRESS (Implemented in audit script, needs system-wide standardization)
 
 ## Code Reuse and Modularity
 
