@@ -1,4 +1,4 @@
-=== TEST-audit_inception_commit.sh v0.1.04 ===
+=== TEST-audit_inception_commit.sh v0.1.05 ===
 Parsing command line parameters...
 Starting tests for audit_inception_commit-POC.sh
 Target script: /Users/christophera/Documents/Workspace/github/openintegrityproject/scripts/audit_inception_commit-POC.sh
@@ -58,8 +58,8 @@ TEST: CI environment variable
 ✅ PASSED
 
 ===== Testing GitHub integration =====
-Creating local repository with inception commit at: /Users/christophera/Documents/Workspace/github/openintegrityproject/scripts/../sandbox/oi-temp-test-repo-1741075551
-Creating GitHub repository from local repository: oi-temp-test-repo-1741075551
+Creating local repository with inception commit at: /Users/christophera/Documents/Workspace/github/openintegrityproject/scripts/../sandbox/oi-temp-test-repo-1741081099
+Creating GitHub repository from local repository: oi-temp-test-repo-1741081099
 TEST: Full GitHub integration
 ✅ PASSED
 TEST: GitHub standards compliance check
@@ -68,7 +68,7 @@ TEST: GitHub integration with verbose mode
 ✅ PASSED
 Cleaning up GitHub repository
 ⚠️ Warning: Failed to delete temporary GitHub repository. Please delete manually:
-gh repo delete ChristopherA/oi-temp-test-repo-1741075551 --yes
+gh repo delete ChristopherA/oi-temp-test-repo-1741081099 --yes
 
 ===== TEST SUMMARY =====
 Total tests: 21
