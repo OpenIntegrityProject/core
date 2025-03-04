@@ -26,6 +26,49 @@ These tests are especially useful when scripts accept user input, interact with 
 
 These regression tests are designed to be simple and efficient. They should not introduce unnecessary complexity, require large mock environments, or involve detailed performance benchmarking. Instead, they should focus on ensuring scripts handle valid and invalid inputs as expected, with clear error messages and predictable behavior.
 
+## Handling Changes to Expected Exit Codes
+
+When architectural decisions change the expected exit code behavior of scripts, regression tests must be updated carefully to maintain accuracy while preserving the history of these changes.
+
+### Requirements for Exit Code Changes
+
+1. **Documentation of Exit Code Changes**
+   - When expected exit codes change due to architectural decisions, the reason MUST be documented in:
+     - The script's ISSUES document (e.g., ISSUES-script_name.md)
+     - The script's CHANGELOG entry
+     - The test script itself as a clear comment
+
+2. **Test Script Updates**
+   - When updating test expectations for exit codes:
+     - Add comments explaining the architectural change and its date
+     - Update all affected test cases with consistent exit code expectations
+     - Update any patterns that match output containing exit code information
+
+3. **Reference Output File Updates**
+   - When exit code changes require updating reference output files:
+     - Include the update as a separate commit from code changes
+     - Document the specific exit code changes in the commit message
+     - Include before/after examples in the commit message
+
+4. **Transition Period Handling**
+   - For major exit code behavior changes, consider:
+     - Adding temporary compatibility test modes
+     - Documenting the deprecation timeline
+     - Providing migration examples
+
+### Example Documentation for Exit Code Changes
+
+```zsh
+# The following test now expects exit code 0 (success) instead of 1 (failure)
+# ARCHITECTURAL CHANGE (2025-03-04): Non-zero exit codes now only represent 
+# issues with local verification phases (1-3). Issues with remote phases (4-5)
+# are reported as warnings but don't affect the exit code.
+run_test "GitHub compliance" \
+  "$SCRIPT_PATH --no-prompt -C $TEST_REPO_PATH" \
+  0 \  # Previously expected 1
+  "Audit Complete: Git repo .* in compliance with Open Integrity specification"
+```
+
 ## Security Considerations
 
 When creating regression test scripts, consider the following security guidelines:
