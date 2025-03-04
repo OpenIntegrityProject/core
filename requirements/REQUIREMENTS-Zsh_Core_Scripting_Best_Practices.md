@@ -1,14 +1,26 @@
-_file: `https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md`_
-
 # Zsh Core Scripting Requirements and Best Practices
-_(last updated 2024-02-24, Christopher Allen <ChristopherA@LifeWithAlacrity.com> Github/Twitter/Bluesky: @ChristopherA)_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md`_
+> - _github: [`scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md)_
+> - _Updated: 2025-03-01 by Christopher Allen <ChristopherA@LifeWithAlacrity.com> Github/Twitter/Bluesky: @ChristopherA_
+
+[![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
+[![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
+
+## Code Version and Source
+
+This requirements document applies to the the initial Open Integrity Project's **Proof-of-Concept** scripts, versioned **0.1.\***, which are available at the following source:
+
+> **Origin:** [_github: `https://github.com/OpenIntegrityProject/scripts/`_](https://github.com/OpenIntegrityProject/scripts/)
+
+Any updates or modifications to these scripts should reference this requirements document to ensure consistency with the outlined requirements.
 
 ## Introduction
 Zsh scripting requires a methodical approach that prioritizes safety, readability, and predictability. This document outlines the core principles and foundational practices for creating robust Zsh scripts, establishing the fundamental requirements that serve as the baseline for all script development in the project.
 
 The Zsh scripting architecture consists of three tiers of requirements:
 1. **Core Requirements:** Universal principles and standards applicable to all Zsh scripts (this document).
-2. **Snippet Script Requirements:** Specific guidance for small (under 100 lines), single-purpose scripts (at `REQUIREMENTS-Zsh_Snippet_Scripting_Best_Practices.md`).
+2. **Snippet Script Requirements:** Specific guidance for small (under 200 lines), single-purpose scripts (at `REQUIREMENTS-Zsh_Snippet_Scripting_Best_Practices.md`).
 3. **Framework Script Requirements** - Extended requirements for complex, multi-component scripts (at `REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md`).
 
 These comprehensive requirements are designed to ensure scripts are not just functional, but maintainable, secure, and aligned with best practices in shell scripting. They focus on safety, predictability, proper error handling, and clear documentation, with implementation specifics detailed in either the Snippet or Framework requirements documents based on script scope and complexity.
@@ -63,7 +75,7 @@ setopt errexit nounset pipefail localoptions warncreateglobal
 
 ### Naming Conventions
 - **Scripts:** Use `lower_snake_case.sh` (not `.zsh`) in `verb_preposition_object.sh` order (e.g., `create_inception_commit.sh`).
-- **Functions:** Use `lowerfirst_Camel_Case` in `verb_Preposition_Object` order (e.g., `verify_Commit_Signature()`).
+- **Functions:** Use `lowerfirst_Pascal_Snake_Case` in `verb_Preposition_Object` order (e.g., `verify_Commit_Signature()`).
   - To prevent potential conflicts with Zsh built-ins and plugins, check for existing function names using `typeset -f function_name` during testing.
 - **Variables:**
   - **Avoid globals:** Use script-scoped variables instead.
@@ -71,6 +83,7 @@ setopt errexit nounset pipefail localoptions warncreateglobal
   - **Script-Scoped:** Use `Mixed_Snake_Case` in `Adjective_Object` order (e.g., `Repo_Dir_Path`).
   - **Local variables:** Use `CamelCase` in `AdjectiveObject` order, with at least two words (e.g., `CommitHash`, `SigningKey`). Never use single-word names like `Dir`, `Repo`, `List`, `Path`, or `File` - these fail to convey purpose or content.
   - **Loop variables:** Use single-letter (`i, j`) only if a trivial loop; otherwise, use meaningful two-word names.
+  - **Explain exceptions** Add comments about exceptions to variable naming rules, for instance Zsh-specific variables (e.g. `$result`) or inherited by or passed to another script with different requirements (e.g., `GIT_COMMITTER_NAME` required by `git`, or `$HOST` from the shell).
   - **Use `typeset`** to declare variables explicitly:
 ```zsh
 typeset -g GLOBAL_VARIABLE  # Global scope (avoid if possible)
@@ -150,6 +163,8 @@ A well-structured script typically follows this execution flow:
    - Implement structured teardown routines for safe script termination.
    - Errors or success codes must propagate back to `main()` to determine the final exit status of the script.
 
+## Zsh Core Scripting - Execution Flow and Structure
+
 ### Function Design Guidelines
 
 - Each function should have a **single, well-defined purpose**.
@@ -157,10 +172,64 @@ A well-structured script typically follows this execution flow:
 - Return meaningful status codes rather than relying on implicit behavior.
 - Explicitly pass parameters instead of depending on global variables.
 - Consistently **handle and propagate errors**, ensuring failures do not cause silent script termination.
-- **Utility functions must be listed first**, followed by core functions, and finally `main()`.
-- **Functions must be listed in reverse dependency order**, meaning that a function that depends on another should be placed after the one it calls.
-- **Avoid circular dependencies by carefully structuring function order**, ensuring that each function is available when called.
-- **When adding new functions**, consider refactoring their order to maintain logical consistency.
+- **Avoid circular dependencies** by carefully analyzing function relationships.
+- **When adding new functions**, analyze their dependencies and place them in the correct order.
+- **Test function ordering** during development by checking for undefined function errors.
+
+### Function Ordering Requirements
+
+- **Dependency-Based Ordering (Required):** Functions must be ordered from least dependent to most dependent. This means:
+  - A function must be defined before any function that calls it
+  - Base functions with no dependencies on other script functions come first
+  - Functions that depend on those base functions come next
+  - Higher-level functions that call multiple lower-level functions come after
+  - The `main()` function typically comes last as it calls many other functions
+
+- **Resolving Same-Level Dependencies (Required):** When multiple functions have the same dependency level:
+  - Order them by reverse execution sequence (functions called earlier in the script's flow appear later in the definition)
+  - Consider execution paths through different script options and arguments
+  - Document the rationale for the chosen order in section comments
+
+- **Section Organization (Required):**
+  - Group related functions within marked sections
+  - Within each section, maintain the dependency-based ordering principle
+  - Document dependencies between sections in section headers
+  - The general order of sections should follow: utilities → domain-specific → orchestration → control
+
+- **Documentation for Function Dependencies (Required):**
+  - Each function's documentation block must list all script functions it depends on
+  - Section headers must document dependencies on other sections
+
+### Function Ordering Example
+
+```zsh
+# Level 1: Base utility with no dependencies on other script functions
+function format_output() {
+   # Implementation with no calls to other script functions
+}
+
+# Level 1: Another base utility (same dependency level as format_output)
+function validate_input() {
+   # Implementation with no calls to other script functions
+}
+
+# Level 2: Function that depends on validate_input
+function process_data() {
+   # First validates input, then processes
+   validate_input "$1" || return $?
+   # Processing logic
+}
+
+# Level 3: Function that depends on both format_output and process_data
+function main() {
+   # Setup
+   process_data "$input" || {
+      format_output "error" "Processing failed"
+      return 1
+   }
+   format_output "success" "Processing complete"
+}
+```
 
 ### Script Execution Control
 
@@ -380,6 +449,7 @@ command -v openssl >/dev/null || {
 
 ## Zsh Core Scripting - Using Zsh Features Effectively
 
+### Native Zsh Capabilities
 - **Prefer Zsh Native Capabilities**
   - Use `print` over `echo` or `printf` for output (better compatibility and escape handling)
   - Use parameter expansion (`${var:A}`) over `readlink` for path resolution
@@ -387,71 +457,181 @@ command -v openssl >/dev/null || {
   - Use `${(f)var}` over `while read` for line splitting
   - Use `${var##*/}` over `basename` for path manipulation
   - Use native modifiers (`:h`, `:t`, `:r`, `:e`) over `dirname`/`basename` for path components
-  - Leverage `(z)` parameter expansion flag for handling null-delimited data
+  - Use `${(@f)command_output}` to split command output into an array by newlines
+  - Use `${(j:\n:)array}` to join array elements with newlines
 
-- **Safe `eval` usage for Associative Arrays**
+### Array and Associative Array Handling
+
+#### Array Declaration and Access
+- **Declare arrays explicitly**:
+```zsh
+typeset -a SimpleArray          # Regular indexed array
+typeset -A AssociativeArray     # Key-value associative array
+```
+
+- **Initialize arrays properly**:
+```zsh
+SimpleArray=("item1" "item2" "item3")
+AssociativeArray=(
+  "key1" "value1"
+  "key2" "value2"
+)
+```
+
+- **Access arrays without quotes around keys**:
+```zsh
+# CORRECT - Without quotes
+value="${SimpleArray[1]}"           # Access by index
+value="${AssociativeArray[keyname]}" # Access by key
+
+# INCORRECT - Quotes around keys can cause issues
+value="${AssociativeArray["keyname"]}"
+```
+
+- **Iterate arrays safely**:
+```zsh
+# Always use typeset for loop variables
+typeset item
+for item in $SimpleArray; do
+  # ...process the item
+done
+
+typeset key
+for key in ${(k)AssociativeArray}; do
+  typeset value="${AssociativeArray[$key]}"
+  # ...process the key-value pair
+done
+```
+
+- **Use parameter expansion flags for array operations**:
+```zsh
+# Join array elements with a separator
+joined_string="${(j:,:)SimpleArray}"  # Joins with commas
+
+# Split a string into an array
+typeset -a words
+words=(${(s: :)some_string})         # Splits on spaces
+
+# Get array keys
+keys=(${(k)AssociativeArray})
+
+# Get array values
+values=(${(v)AssociativeArray})
+```
+
+#### Scope Considerations
+
+- **Arrays in functions**: When modifying array elements in functions, be explicit about scope:
+```zsh
+# CORRECT - Explicitly modify the array element
+functionName() {
+  # Properly scoped modification
+  MyArray[index]="new value"      # Modify element directly
+}
+
+# AVOID - Returning and reassigning array
+functionName() {
+  typeset -a localArray=("$@")
+  # ...modify localArray
+  print -r -- "${localArray[@]}"   # Must be captured and parsed by caller
+}
+```
+
+- **Always scope loop variables**:
+```zsh
+# CORRECT
+typeset key
+for key in ${(k)AssociativeArray}; do
+  # ...
+done
+
+# INCORRECT - Can create global variables
+for key in ${(k)AssociativeArray}; do
+  # key might become global
+done
+```
+
+### Pattern Matching and Command Substitution
+
+- **Use `=~` for regex pattern matching with explicit array handling**:
+```zsh
+typeset -a match mbegin mend  # Special arrays for regex captures
+
+if [[ "$string" =~ '^([a-z]+)=(.*)$' ]]; then
+  key="${match[1]}"      # First capture group
+  value="${match[2]}"    # Second capture group
+fi
+```
+
+- **Handle command substitution safely**:
+```zsh
+# Capture output with proper quoting
+result="$(some_command)"
+
+# Capture multi-line output into an array
+typeset -a lines
+lines=("${(@f)$(some_command)}")
+```
+
+- **Process output with parameter expansion**:
+```zsh
+# Remove trailing newlines
+content="${$(< filename)%$'\n'}"
+
+# Split and rejoin output (useful for formatting)
+typeset -a lines
+lines=("${(@f)$(command)}")
+formatted="${(j:\n  :)lines}"  # Join with newline+indent
+```
+
+### Safe `eval` usage for Associative Arrays
 
 While `eval` should be used with caution, it can be necessary for dynamically accessing or modifying associative arrays when variable names are stored indirectly. Follow these guidelines to ensure safety:
 
 - **Use `typeset -A` to define associative arrays explicitly** before using `eval`:
-  ```zsh
-  typeset -A commitData
-  commitData[abc123]="Signed"
-  ```
+```zsh
+typeset -A commitData
+commitData[abc123]="Signed"
+```
 
 - **Use `eval` only when necessary**, and always sanitize input:
-  ```zsh
-  eval "signatureStatus=\${commitData[$commitHash]:-Unsigned}"
-  ```
+```zsh
+eval "signatureStatus=\${commitData[$commitHash]:-Unsigned}"
+```
 
 - **Avoid unnecessary `eval` by leveraging namerefs (`typeset -n`)** where possible:
-  ```zsh
-  typeset -n commitRef="commitData[$commitHash]"
-  print "Commit Status: $commitRef"
-  ```
+```zsh
+typeset -n commitRef="commitData[$commitHash]"
+print "Commit Status: $commitRef"
+```
 
 - **Use `print -r --` to safely output evaluated values without unintended expansion**:
-  ```zsh
-  eval "print -r -- \"Commit: ${commitData[$commitHash]}\""
-  ```
+```zsh
+eval "print -r -- \"Commit: ${commitData[$commitHash]}\""
+```
 
-- **Pattern Matching and Safe Command Substitution Handling**
+### Debugging Array Values
 
-To ensure command substitution (`$(...)`) is handled safely and predictably:
+When working with arrays, especially associative arrays, include debugging techniques to verify content:
 
-- **Always quote command substitutions** to prevent unintended word splitting:
-  ```zsh
-  repoPath="$(git rev-parse --show-toplevel)"  # Safe
-  ```
-  Avoid:
-  ```zsh
-  repoPath=$(git rev-parse --show-toplevel)  # Unsafe if output contains spaces
-  ```
+```zsh
+# Debug function for associative arrays
+function debug_AssociativeArray() {
+  typeset arrayName="$1"
+  typeset key
+  
+  print "=== Contents of $arrayName ==="
+  for key in ${(k)${(P)arrayName}}; do
+    print "  $key = ${${(P)arrayName}[$key]}"
+  done
+  print "=== End of $arrayName ==="
+}
 
-- **Use `set -o noglob` or `setopt NO_GLOB` before handling untrusted input** to prevent unwanted file expansion:
-  ```zsh
-  setopt NO_GLOB
-  userInput="$(some_command)"
-  setopt GLOB  # Restore globbing if needed
-  ```
+# Usage
+debug_AssociativeArray "MyAssociativeArray"
+```
 
-- **Ensure pattern matching is explicit and safe in `case` statements**:
-  ```zsh
-  case "$verifyLine" in
-      (*"Good git signature"*|*"ED25519 key"*|*"RSA key"*)
-          signatureValid="yes"
-      ;;
-  esac
-  ```
-
-- **Use `[[ ... ]]` for pattern matching instead of `[ ... ]`** to prevent unexpected expansion:
-  ```zsh
-  if [[ "$fileName" == *.txt ]]; then
-      print "Processing text file: $fileName"
-  fi
-  ```
-
-These native Zsh features provide more efficient and robust alternatives to external commands, reducing dependencies and improving performance. As script complexity increases, leveraging these features becomes increasingly important for maintaining script efficiency and readability.
+These Zsh-specific features and techniques enable more efficient and robust scripting, leveraging the full power of Zsh while avoiding common pitfalls.
 
 ## Zsh Core Scripting - CLI Output
 
@@ -515,6 +695,23 @@ The specifics of documentation implementation will vary between snippet and fram
 - Exit with `127` (`$Exit_Status_Dependency`) if a required command is missing.
 
 ## Zsh Core Scripting - Testing & Debugging
+
+### Core Testing Principles
+
+### Fundamental Test Requirements
+- Verify script syntax
+- Test core function behavior
+- Validate error handling
+- Check parameter processing
+- Ensure exit code accuracy
+
+### Basic Test Validation
+- Confirm script runs without syntax errors
+- Test each function's primary workflow
+- Check error condition handling
+- Check input parameter processing
+- Verify exit codes match expected outcomes
+- Create a regression test procedure or script for all CLI options
 
 ### Syntax & Execution Testing
 - Some external commands (in particular `git`) sometimes return empty lines. Use Zsh-native string handling to remove any unexpected empty lines:
