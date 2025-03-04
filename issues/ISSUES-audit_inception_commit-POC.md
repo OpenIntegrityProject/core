@@ -106,7 +106,41 @@ These issues were resolved in older versions of the script:
 
 These issues remain to be addressed in future versions:
 
-Here are the descriptions for these two issues formatted for inclusion in the `ISSUES-audit_inception_commit-POC.md` document:
+### ISSUE: Progressive Trust Terminology Inconsistency (Priority: High)
+**Context:** With the creation of `REQUIREMENTS-Progressive_Trust_Terminology.md`, there are now clear guidelines for phase-specific terminology that all scripts should follow, especially regarding the distinction between different phases and their corresponding verbs.
+
+**Current:** While `audit_inception_commit-POC.sh` mostly follows Progressive Trust terminology conventions, there are inconsistencies:
+1. Some Phase 2 (Wholeness) functions use `assess` for binary checks that should use `assure` instead
+2. The function `oi_Assess_Empty_Commit` performs a binary confirmation and should be renamed to `oi_Assure_Empty_Commit`
+3. Some error messages and comments use "verify" for non-cryptographic checks (Phase 2), which should be reserved for Phase 3
+4. Line 1403: Uses "verify commit exists" where "check commit exists" would be more appropriate
+5. Some status reporting doesn't consistently use phase-appropriate terminology
+
+**Impact:** Terminology inconsistencies reduce conceptual clarity and can lead to confusion about which Progressive Trust phase an operation belongs to, creating both developer and user confusion.
+
+**Proposed Actions:**
+1. Rename functions to follow phase-specific terminology conventions:
+   - Change `oi_Assess_Empty_Commit()` to `oi_Assure_Empty_Commit()`
+   - Ensure all Phase 2 functions use either `assess_*` or `assure_*` appropriately
+   - Review all `verify` usage to ensure it's only used for cryptographic operations
+
+2. Update all output messages to use phase-appropriate terminology:
+   - Phase 2 (Wholeness): Use "assessed," "assured," "examined" 
+   - Phase 3 (Proofs): Use "verified," "authenticated"
+   - Phase 4 (References): Use "affirmed," "referenced"
+   - Phase 5 (Requirements): Use "audited," "compliance," "standards"
+
+3. Update comments and documentation to align with terminology requirements:
+   - Replace "verify commit exists" with "check commit exists"
+   - Use phase-specific terminology in all function documentation blocks
+   - Ensure error messages use appropriate phase terminology
+
+4. Add explicit phase indicators in section headers and output messages:
+   - Include phase numbers and names in error messages
+   - Use consistent phase labeling in section headers
+
+**Status:** OPEN
+
 
 ### ISSUE: Inconsistent Exit Code Behavior (Priority: High) - RESOLVED
 **Context:** The script returns inconsistent exit codes across different execution scenarios
