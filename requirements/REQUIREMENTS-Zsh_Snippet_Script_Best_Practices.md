@@ -1,10 +1,10 @@
 _file: `REQUIREMENTS-Zsh_Snippet_Scripting_Best_Practices.md`_
 
 # Zsh Snippet Scripting Requirements and Best Practices
-_(last updated 2024-02-25, Christopher Allen <ChristopherA@LifeWithAlacrity.com> Github/Twitter/Bluesky: @ChristopherA)_
+_(last updated 2024-03-01, Christopher Allen <ChristopherA@LifeWithAlacrity.com> Github/Twitter/Bluesky: @ChristopherA)_
 
 ## Introduction
-Zsh Snippet scripts are **small, self-contained, and executable**, typically **less than 50 lines** (excluding comment lines and variable declarations), but should remain **under 100 lines of code**. They should be **concise**, **modular**, and **follow best practices** while avoiding unnecessary complexity.
+Zsh Snippet scripts are **small, self-contained, and executable**, typically **less than 75 lines** (excluding comment lines and variable declarations), but should remain **under 200 lines of code**. They should be **concise**, **modular**, and **follow best practices** while avoiding unnecessary complexity.
 
 These requirements are **less stringent** than those for framework scripts, and define the **minimum necessary standards** for Zsh Snippet Scripts. If a script exceeds this scope—requiring extensive logic, multiple functions, or significant complexity—it should be refactored into a **full script framework** that adheres to the broader requirements in `REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md`.
 
@@ -450,6 +450,47 @@ zsh -x snippet_script.sh
 - Use project-specific prefixes to avoid naming collisions (e.g., `oi_` for Open Integrity)
 
 If your script requires more extensive testing or output management, consider using a full framework script.
+
+### Regression Test Scripts for Zsh Snippets
+
+Regression test scripts are not required for Zsh Snippets, but are recommended.
+
+#### Fundamental Considerations
+- The primary focus of a regression test script is testing of CLI parameter variations
+- Regression test scripts for snippets are themselves Zsh snippet scripts
+  - Thus must adhere to all Zsh Core and these Zsh snippet scripting requirements
+
+#### CLI Parameter Testing
+- Systematically test all defined command-line arguments and options
+- Validate correct behavior for:
+  - Each individual flag/option
+  - Combinations of compatible flags
+  - Error cases for invalid arguments
+  - Help/usage output display
+
+#### Test Environment Management
+- Prioritize minimal, targeted test scenarios
+- Create temporary test artifacts only when necessary
+- Restore system state between individual tests, or after the regression test script is complete
+- Ensure test script can be run repeatedly without side effects
+- Clean up any temporary files, directories, or configuration changes
+
+#### Key Testing Strategy
+- Focus on parameter validation and error handling
+- Verify script's response to various input scenarios
+- Demonstrate script robustness without extensive sample data creation
+
+#### What Regression Test Scripts Do Not Require
+- Full comprehensive data generation of test cases
+- Extensive mock environment setup
+- Complex dependency simulation
+- Detailed performance benchmarking
+- Complete code coverage analysis
+- Elaborate test fixture management
+- Parallel test execution
+- Persistent test state between runs
+- Complex test result aggregation
+- Integration with external testing frameworks
 
 ## Zsh Snippet Scripting - Example Files
 
