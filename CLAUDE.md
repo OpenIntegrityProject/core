@@ -1,12 +1,47 @@
-# Open Integrity Project Scripts
+# Claude CLI Agent Guidelines for Open Integrity Project
+
+This document contains specific requirements and guidelines for the Claude CLI agent when working with the Open Integrity Project codebase. These guidelines ensure consistent, maintainable, and secure code changes.
+
+## Overview
+
+The Open Integrity Project integrates cryptographic trust mechanisms into Git repositories, establishing verifiable chains of integrity, provenance, and authorship. For a comprehensive overview, see the [README.md](README.md).
+
+## Key Process Requirements for Claude
+
+When working with files and directories:
+
+1. **Always check if files or directories exist before creating them:**
+   - Use `test -f` or `[[ -f ]]` to check for file existence
+   - Use `test -d` or `[[ -d ]]` to check for directory existence
+   - Check `.gitignore` to see if a path is already excluded before suggesting additions
+   - Look for existing configuration before creating new files
+
+2. **Run all scripts and tests from the repository root:**
+   - Never `cd` into subdirectories to run scripts or tests
+   - Use absolute or relative paths from the repository root in examples
+   - Maintain consistent working directory references in documentation
+
+3. **Check git tracking status before removing files:**
+   - Use `git ls-files <path>` to check if a file is tracked by git
+   - Use `git rm <path>` instead of `rm <path>` for tracked files
+   - For directories, use `git rm -r <directory>` for tracked directories
+   - For untracked files, regular `rm` or `rm -r` can be used
+
+4. **Use git status before making changes:**
+   - Run `git status` to check the repository state before modifying files
+   - Note any already staged changes or untracked files
+   - Check branch status and any pending commits
+
+5. **Update OPEN_TASKS.md when completing tasks:**
+   - Mark completed tasks with [x] in the checklist
+   - Add progress notes with dates when applicable
+   - Update status fields to reflect current state (OPEN, IN PROGRESS, RESOLVED)
 
 ## Progressive Trust Terminology
 
 The Open Integrity Project uses specific terminology for each phase of the Progressive Trust model. For the comprehensive terminology guidelines, please refer to:
 
 - [Progressive Trust Terminology Requirements](src/requirements/REQUIREMENTS-Progressive_Trust_Terminology.md)
-
-The Open Integrity Project integrates cryptographic trust mechanisms into Git repositories, establishing verifiable chains of integrity, provenance, and authorship. For a comprehensive overview, see the [README.md](README.md).
 
 ## Common Commands
 - Audit this repository: `./src/audit_inception_commit-POC.sh`
@@ -161,26 +196,22 @@ When implementing system-wide architectural decisions:
    - Consider both immediate and long-term impact on test expectations
    - Document reason for changes in test expectations
 
-## Process Requirements
+## Version Control Best Practices
 
-When working with files and directories:
+When working with version numbers and release management:
 
-1. **Always check if files or directories exist before creating them:**
-   - Use `test -f` or `[[ -f ]]` to check for file existence
-   - Use `test -d` or `[[ -d ]]` to check for directory existence
-   - Check `.gitignore` to see if a path is already excluded before suggesting additions
-   - Look for existing configuration before creating new files
+1. **Always update version numbers consistently:**
+   - Update script version in header comments (VERSION: line)
+   - Update Script_Version constant in the code 
+   - Update CHANGE LOG entries with detailed bullet points
+   - Use consistent version format (X.Y.ZZ) across all references
+   - Update corresponding test script versions when main script versions change
 
-2. **Run all scripts and tests from the repository root:**
-   - Never `cd` into subdirectories to run scripts or tests
-   - Use absolute or relative paths from the repository root in examples
-   - Maintain consistent working directory references in documentation
-
-3. **Check git tracking status before removing files:**
-   - Use `git ls-files <path>` to check if a file is tracked by git
-   - Use `git rm <path>` instead of `rm <path>` for tracked files
-   - For directories, use `git rm -r <directory>` for tracked directories
-   - For untracked files, regular `rm` or `rm -r` can be used
+2. **Check repository status before and after operations:**
+   - Use `git status` before starting work to understand current state
+   - Verify branch is clean or has expected changes before making modifications
+   - Confirm changes are as expected after edits with another `git status`
+   - Use `git diff <file>` to verify specific changes before staging
 
 ## Enhanced Commit Message Guidelines
 
@@ -259,3 +290,31 @@ When creating commits:
 ## Templates
 - Script template: [src/snippet_template.sh](src/snippet_template.sh)
 - Framework: `z_min_frame.sh` or `z_frame.sh`
+
+## Guidelines for Claude When Working on Issues
+
+When working on fixing issues or implementing new features:
+
+1. **Understand the full context before making changes:**
+   - Read relevant documentation in README.md and requirement documents
+   - Check issue descriptions in ISSUES files for background and constraints
+   - Look at existing implementation patterns in similar files
+   - Verify assumptions with `git status` and appropriate directory listings
+
+2. **Follow a methodical approach:**
+   - First assess what files need to be modified and their current state
+   - Create a plan before making any changes
+   - Make changes one file at a time with individual commits
+   - Test changes immediately after making them
+   - Document what was done in OPEN_TASKS.md and relevant ISSUES files
+
+3. **Ensure thorough testing:**
+   - Run the specific test for any script you modify
+   - Confirm test output matches expectations
+   - Update test output files if changes were intended to modify behavior
+   - Verify script functionality works as expected with manual testing
+
+4. **When in doubt, ask for clarification:**
+   - Be explicit about what's unclear rather than making assumptions
+   - Provide options with pros and cons when multiple approaches exist
+   - Reference specific lines or files when asking questions
