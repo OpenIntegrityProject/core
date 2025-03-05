@@ -1,11 +1,11 @@
 #!/usr/bin/env zsh
 ########################################################################
-## Script:        show_file_status.sh
-## Version:       0.1.00 (2025-02-25)
-## Origin:        https://github.com/BlockchainCommons/snippets/show_file_status.sh
+## Script:        snippet_template.sh
+## Version:       0.1.00 (2025-03-04)
+## Origin:        https://github.com/OpenIntegrityProject/core/blob/main/src/snippet_template.sh
 ## Description:   Shows detailed status information for a file, supporting
 ##                multiple output formats (default, json, yaml).
-## License:       BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html)
+## License:       BSD-2-Clause-Patent (https://spdx.org/licenses/BSD-2-Clause-Patent.html)
 ## Copyright:     (c) 2025 Blockchain Commons LLC (https://www.BlockchainCommons.com)
 ## Attribution:   Christopher Allen <ChristopherA@LifeWithAlacrity.com>
 ## Usage:         show_file_status.sh [-f|--format default|json|yaml] <file>
