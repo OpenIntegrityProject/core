@@ -1,7 +1,7 @@
-# Open Integrity Project: Scripts Roadmap
+# Open Integrity Project: Core Roadmap
 
 > - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/ROADMAP.md`_
-> - _github: [`scripts/ROADMAP.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/ROADMAP.md)_
+> - _github: [`core/ROADMAP.md`](https://github.com/OpenIntegrityProject/core/blob/main/ROADMAP.md)_
 > - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
