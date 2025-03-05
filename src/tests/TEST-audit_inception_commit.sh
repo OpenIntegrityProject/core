@@ -2,12 +2,12 @@
 ########################################################################
 ## Script:        TEST-audit_inception_commit.sh
 ## Version:       0.1.05 (2025-03-04)
-## Origin:        https://github.com/OpenIntegrityProject/scripts/blob/main/tests/TEST-audit_inception_commit.sh
+## Origin:        https://github.com/OpenIntegrityProject/core/blob/main/src/tests/TEST-audit_inception_commit.sh
 ## Description:   Tests the audit_inception_commit-POC.sh script for compliance with
 ##                Open Integrity requirements and verifies all CLI options.
 ##                Includes GitHub integration tests when GitHub CLI is available and
 ##                authenticated.
-## License:       BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html)
+## License:       BSD-2-Clause-Patent (https://spdx.org/licenses/BSD-2-Clause-Patent.html)
 ## Copyright:     (c) 2025 Blockchain Commons LLC (https://www.BlockchainCommons.com)
 ## Attribution:   Christopher Allen <ChristopherA@LifeWithAlacrity.com>
 ## Usage:         TEST-audit_inception_commit.sh [-v|--verbose]
