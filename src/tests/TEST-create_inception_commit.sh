@@ -2,11 +2,11 @@
 ########################################################################
 ## Script:        TEST-create_inception_commit.sh
 ## Version:       0.1.03 (2025-03-04)
-## Origin:        https://github.com/BlockchainCommons/open_integrity-git_inception_WIP/snippets/tests
+## Origin:        https://github.com/OpenIntegrityProject/core/blob/main/src/tests/TEST-create_inception_commit.sh
 ## Description:   Regression test harness for create_inception_commit.sh
 ##                script, testing conformance to Open Integrity Project
 ##                standards and Zsh scripting requirements.
-## License:       BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html)
+## License:       BSD-2-Clause-Patent (https://spdx.org/licenses/BSD-2-Clause-Patent.html)
 ## Copyright:     (c) 2025 Blockchain Commons LLC (https://www.BlockchainCommons.com)
 ## Attribution:   Christopher Allen <ChristopherA@LifeWithAlacrity.com>
 ## Usage:         TEST-create_inception_commit.sh [-v|--verbose]
