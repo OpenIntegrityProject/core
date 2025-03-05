@@ -1,7 +1,7 @@
 # Issues related to the `audit_inception_commit-POC.sh` Open Integrity Tool
-> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/issues/ISSUES-audit_inception_commit-POC.md`_
-> - _github: [`scripts/issues/ISSUES-audit_inception_commit-POC.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-audit_inception_commit-POC.md)_
-> - _Updated: 2025-03-02 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/src/issues/ISSUES-audit_inception_commit-POC.md`_
+> - _github: [`core/src/issues/ISSUES-audit_inception_commit-POC.md`](https://github.com/OpenIntegrityProject/core/blob/main/src/issues/ISSUES-audit_inception_commit-POC.md)_
+> - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
 [![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
@@ -11,13 +11,12 @@ Issues related to the `audit_inception_commit-POC.sh` script, which performs mul
 
 ## Code Version and Source
 
-This issues document applies to the Open Integrity Project's **Proof-of-Concept** script `audit_inception_commit-POC.sh`, **version 0.1.04 (2025-03-04)**, and associated files, which are available at the following sources:
+This issues document applies to the Open Integrity Project's **Proof-of-Concept** script `audit_inception_commit-POC.sh`, **version 0.1.05 (2025-03-04)**, and associated files, which are available at the following sources:
 
 > **Origin:**
-> - [Requirements: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/scripts//blob/main/requirements/REQUIREMENTS-audit_inception_commit-POC)
-> - [Script: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh)
-> - [Script: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh)
-> - [Regression Test: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/tests/TEST-audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/scripts/blob/main/tests/TEST-audit_inception_commit-POC.sh)
+> - [Requirements: _github: `https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-audit_inception_commit-POC.md`_](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-audit_inception_commit-POC.md)
+> - [Script: _github: `https://github.com/OpenIntegrityProject/core/blob/main/src/audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/core/blob/main/src/audit_inception_commit-POC.sh)
+> - [Regression Test: _github: `https://github.com/OpenIntegrityProject/core/blob/main/src/tests/TEST-audit_inception_commit.sh`_](https://github.com/OpenIntegrityProject/core/blob/main/src/tests/TEST-audit_inception_commit.sh)
 
 
 
@@ -436,6 +435,28 @@ function audit_repository() {
 - Implement a `--self-test` flag for basic functionality validation
 - Add internal consistency checks
 **Status:** OPEN
+
+### ISSUE: Test Scripts Leave Artifact Directories (Priority: Medium)
+**Context:** Both TEST-audit_inception_commit.sh and TEST-create_inception_commit.sh create test directories that are not fully cleaned up after tests complete
+**Current:** 
+- TEST-audit_inception_commit.sh creates a sandbox/ directory at the repository root with valid_repo and invalid_repo subdirectories
+- TEST-create_inception_commit.sh creates directories in /tmp/ (e.g., oi_test_repos_*) that may not be fully cleaned up
+**Impact:** 
+- Creates artifacts in the repository that may be accidentally committed
+- Accumulates test directories over time
+- Reduces the cleanliness of the testing process
+- May lead to confusion when analyzing repository contents
+- Consumes disk space unnecessarily
+**Proposed Actions:**
+- Add proper cleanup code to remove all test directories after tests complete
+- Implement a proper EXIT trap to ensure cleanup even when tests fail or are interrupted
+- Standardize on using temporary directories instead of the repository root
+- Update .gitignore to prevent accidental commits of test artifacts (already contains sandbox/ and tmp/)
+- Consider adding a periodic cleanup script for test artifacts
+**Progress:**
+- 2025-03-04: Documented issue with test directories
+- 2025-03-04: Confirmed sandbox/ and tmp/ are already in .gitignore
+**Status:** IN PROGRESS
 
 ### ISSUE: Signal Handling Limitations (Priority: Medium)
 **Context:** Current signal handling doesn't ensure proper cleanup in all termination scenarios
