@@ -1,26 +1,25 @@
 # Requirements for Zsh Script "Audit Inception Commit"
-> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/requirements/REQUIREMENTS-audit_inception_commit.md`_
-> - _github: [scripts/issues/REQUIREMENTS-audit_inception_commit.md](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-audit_inception_commit.md)
-> - _Updated: 2025-05-03 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/src/requirements/REQUIREMENTS-audit_inception_commit-POC.md`_
+> - _github: [core/src/requirements/REQUIREMENTS-audit_inception_commit-POC.md](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-audit_inception_commit-POC.md)
+> - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
 [![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
 
-This requirements document applies to the Open Integrity Project's **Proof-of-Concept** script `audit_inception_commit-POC.sh`, **version 0.1.03 (2025-03-03)**, and associated files, which are available at the following sources:
+This requirements document applies to the Open Integrity Project's **Proof-of-Concept** script `audit_inception_commit-POC.sh`, **version 0.1.05 (2025-03-04)**, and associated files, which are available at the following sources:
 
 > **Origin:**
-> - [Requirements: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/scripts//blob/main/requirements/REQUIREMENTS-audit_inception_commit-POC)
-> - [Script: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh)
-> - [Script: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/scripts/blob/main/audit_inception_commit-POC.sh)
-> - [Regression Test: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/tests/TEST-audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/scripts/blob/main/tests/TEST-audit_inception_commit-POC.sh)
+> - [Requirements: _github: `https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-audit_inception_commit-POC.md`_](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-audit_inception_commit-POC.md)
+> - [Script: _github: `https://github.com/OpenIntegrityProject/core/blob/main/src/audit_inception_commit-POC.sh`_](https://github.com/OpenIntegrityProject/core/blob/main/src/audit_inception_commit-POC.sh)
+> - [Regression Test: _github: `https://github.com/OpenIntegrityProject/core/blob/main/src/tests/TEST-audit_inception_commit.sh`_](https://github.com/OpenIntegrityProject/core/blob/main/src/tests/TEST-audit_inception_commit.sh)
 
 
 ## General Requirements
 
 This script must adhere to all principles defined in:
-- [REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md) - For general Zsh scripting practices
-- [REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Snippet_Scripting_Best_Practices.md) - For framework-specific implementation details (as this script exceeds the size limitations for snippet scripts)
+- [REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md) - For general Zsh scripting practices
+- [REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md) - For framework-specific implementation details (as this script exceeds the size limitations for snippet scripts)
 
 As a framework script, this implements multiple phases of the Progressive Trust lifecycle for Git repositories, focusing on inception commit validation and cryptographic trust establishment.
 
