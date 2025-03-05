@@ -1,13 +1,13 @@
 # Issues - Zsh Core Scripting Requirements and Best Practices
-> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md`_
-> - _github: [Zsh Core Scripting Requirements and Best Practices](https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md)_
-> - _Updated: 2025-02-27 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/src/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md`_
+> - _github: [Zsh Core Scripting Requirements and Best Practices](https://github.com/OpenIntegrityProject/core/blob/main/src/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md)_
+> - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
 [![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
 
-Issues related to the [Zsh Core Scripting Requirements and Best Practices](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md).
+Issues related to the [Zsh Core Scripting Requirements and Best Practices](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md).
 
 ## Update Function Naming Conventions
 
