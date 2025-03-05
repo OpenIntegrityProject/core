@@ -134,9 +134,9 @@
 ## 
 ## PART OF:      
 ##   Open Integrity Project of Blockchain Commons LLC.
-##   - Open Integrity Git Inception POCs
-##     - <https://github.com/BlockchainCommons/open_integrity-git_inception_pocs>
-##     - <did:repo:a3306efcb768baa6f414409b6b3575914986c8a6>
+##   - Open Integrity Core
+##     - <https://github.com/OpenIntegrityProject/core>
+##     - <did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6>
 ########################################################################
 
 ########################################################################
