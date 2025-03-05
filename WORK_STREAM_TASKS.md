@@ -98,9 +98,9 @@ Implementation of a standardized work stream tracking system for multi-branch de
   - [x] Distinguish between AI assistance and human responsibility
   - [x] Emphasize proper signing and certification by human authors
 
-## Branch: [enforce-ssh-signatures] (Example - Not Active)
+## Branch: [enforce-ssh-signatures]
 
-Implementation of SSH signature enforcement under the Inception Authority trust model.
+Implementation of SSH signature enforcement under the Inception Authority trust model with GitHub and local git integration.
 
 **Related Issues:**
 - [ISSUES-Open_Integrity_Scripting_Infrastructure.md: Automating GitHub & Git Enforcement](src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md#issue-automating-github--git-enforcement-of-signed-commits-and-sign-offs)
@@ -113,31 +113,151 @@ Implementation of SSH signature enforcement under the Inception Authority trust 
   > Contains terminology for signature verification in the Progressive Trust model
 - [Enforcing_Signed_Commits_And_PRs_GitHub.md](docs/Enforcing_Signed_Commits_And_PRs_GitHub.md)
   > Current documentation on enforcing commits that needs to be updated
+  
+### Stage 1: Branch Initialization and Task Planning
 
-### Stage 1: Requirements
-- [ ] **Create requirements for SSH signature enforcement** [enforce-ssh-signatures]
+- [x] **Initialize branch for development** [enforce-ssh-signatures] (High Priority)
+  - [x] Sync branch with latest changes from main (`git pull origin main`)
+  - [x] Review updated task list and make final adjustments
+
+- [x] **Review and update branch tasks** [enforce-ssh-signatures] (High Priority)
+  - [x] Review untracked/GITHUB_API_ISSUES_LOG.md for details on GitHub API challenges
+  - [x] Review ISSUES-Open_Integrity_Scripting_Infrastructure.md for relevant sections
+  - [x] Analyze docs/Enforcing_Signed_Commits_And_PRs_GitHub.md for outdated content
+  - [x] Update WORK_STREAM_TASKS.md with comprehensive task list for the branch
+
+- [ ] **Complete initial branch setup** [enforce-ssh-signatures] (High Priority)
+  - [ ] Stage WORK_STREAM_TASKS.md file for commit (`git add WORK_STREAM_TASKS.md`)
+  - [ ] Create properly formatted commit with sign-off (`git commit -S -s -m "..."`)
+  - [ ] Push branch to GitHub repository (`git push origin enforce-ssh-signatures`)
+
+### Stage 2: Branch Management Strategy
+
+- [ ] **Establish branch update strategy** [enforce-ssh-signatures] (High Priority)
+  - [ ] Research best practices for updating WORK_STREAM_TASKS.md in main without disrupting branch work
+  - [ ] Document cherry-pick process for selective updates to WORK_STREAM_TASKS.md to main from feature branch
+  - [ ] Create guidance for handling WORK_STREAM_TASKS.md conflicts during branch updates
+  - [ ] Consider updating CLAUDE.md with branch status update procedures if needed
+
+- [ ] **Implement branch management practices** [enforce-ssh-signatures]
+  - [ ] Keep branch up-to-date with main using `git pull origin main`
+  - [ ] Resolve any conflicts, particularly in WORK_STREAM_TASKS.md, maintaining branch tasks
+  - [ ] Push updated branch to GitHub regularly (`git push origin enforce-ssh-signatures`)
+  - [ ] Consider creating a draft PR early to track progress
+  - [ ] Research how "in-progress" PRs work on GitHub, so we can push early draft PR there.
+  - [ ] Push the draft PR to GitHub as an "in-progress" PR.
+
+- [ ] **Create process for status updates to main** [enforce-ssh-signatures]
+  - [ ] Create small, focused PRs for WORK_STREAM_TASKS.md updates only
+  - [ ] Use cherry-picking to select only status-related commits
+  - [ ] Document process for other branches to follow
+  - [ ] Test process with a small status update PR
+
+### Stage 3: Documentation of Current Challenges
+
+- [ ] **Document existing GitHub API issues and limitations** [enforce-ssh-signatures] (High Priority)
+  - [ ] Create `src/issues/ISSUES-GitHub_API_Integration.md` based on `untracked/GITHUB_API_ISSUES_LOG.md`
+  - [ ] Format it according to standard ISSUES document structure with Context/Current/Impact/Proposed Actions
+  - [ ] Document issues with GitHub API compatibility with existing documentation
+  - [ ] Document issues with GitHub's transition from Branch Protection Rules to Repository Rulesets
+  - [ ] Document bootstrapping challenges for new repositories with single collaborators
+
+- [ ] **Separate GitHub-specific issues from general infrastructure issues** [enforce-ssh-signatures] (Medium Priority)
+  - [ ] Review `src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md` for GitHub-specific content
+  - [ ] Move relevant GitHub-specific sections to the new GitHub issues document
+  - [ ] Ensure cross-references between documents maintain clarity
+
+### Stage 4: Research and Requirements Definition
+
+- [ ] **Research current GitHub API and CLI limitations** [enforce-ssh-signatures] (High Priority)
+  - [ ] Test current GitHub Ruleset API using `gh api` to determine proper format and parameters
+  - [ ] Document the process for repository configuration via GitHub API vs. UI
+  - [ ] Investigate how repository rulesets can be created and modified via API
+  - [ ] Research alternatives to deprecated GitHub CLI commands
+
+- [ ] **Define requirements for different hosting environments** [enforce-ssh-signatures] (High Priority)
   - [ ] Create `src/requirements/REQUIREMENTS-configure_ssh_signatures.md` as a framework document
-  - [ ] Define the goals, parameters, and process for enforcing SSH signatures
-  - [ ] Include examples based on GitHub CLI commands
+  - [ ] Define separate requirements for self-hosted git repositories vs. platform services
+  - [ ] Document specific requirements for GitHub, with notes for future platform support
+  - [ ] Define bootstrapping process requirements for new repositories
 
-### Stage 2: Documentation
-- [ ] **Update existing documentation** [enforce-ssh-signatures]
-  - [ ] Enhance `docs/Enforcing_Signed_Commits_And_PRs_GitHub.md` to focus on SSH signatures
+- [ ] **Identify git hooks requirements for local enforcement** [enforce-ssh-signatures] (Medium Priority)
+  - [ ] Research requirements for local git repository hooks implementation
+  - [ ] Document how hooks should be distributed and installed
+  - [ ] Define verification process for local commits vs. remote/pulled commits
+
+### Stage 5: Update Documentation
+
+- [ ] **Update existing documentation** [enforce-ssh-signatures] (Medium Priority)
+  - [ ] Enhance `docs/Enforcing_Signed_Commits_And_PRs_GitHub.md` based on current GitHub API
+  - [ ] Update with instructions for Repository Rulesets vs. Branch Protection Rules
+  - [ ] Add documentation on required bypass configurations for repository setup
+  - [ ] Include troubleshooting section for common GitHub API issues
+
+- [ ] **Create new documentation for architecture** [enforce-ssh-signatures] (Medium Priority)
+  - [ ] Document the overall architecture for signature enforcement
+  - [ ] Create clear separation between local git hooks and remote platform integrations
+  - [ ] Establish terminology aligned with `REQUIREMENTS-Progressive_Trust_Terminology.md`
+  - [ ] Document implementation strategies for different authentication models
+
+### Stage 6: Implementation
+
+- [ ] **Create GitHub configuration automation script** [enforce-ssh-signatures] (High Priority)
+  - [ ] Develop `src/configure_github_signatures.sh` following framework script requirements
+  - [ ] Implement GitHub repository ruleset configuration capabilities
+  - [ ] Support optional bypass configurations for repository admins
+  - [ ] Create functions to verify repository settings match intended configuration
+
+- [ ] **Implement local git hooks** [enforce-ssh-signatures] (High Priority)
+  - [ ] Create pre-commit hook template for SSH signature verification
+  - [ ] Develop commit-msg hook to enforce Signed-off-by requirements
+  - [ ] Create installation script to configure hooks in local repositories
+  - [ ] Support check and configuration of `gpg.ssh.allowedSignersFile`
+
+- [ ] **Develop GitHub Action for PR verification** [enforce-ssh-signatures] (Medium Priority)
+  - [ ] Create GitHub Action workflow template for verifying commit signatures
+  - [ ] Ensure compatibility with both GPG and SSH signatures
+  - [ ] Add comprehensive verification for Signed-off-by attestations
+  - [ ] Create clear and user-friendly error messaging
+
+- [ ] **Add regression tests** [enforce-ssh-signatures] (Medium Priority)
+  - [ ] Create comprehensive test cases for local git hook functionality
+  - [ ] Develop tests for GitHub configuration script
+  - [ ] Generate test output reference files
+  - [ ] Ensure proper cleanup of test artifacts
+
+### Stage 7: Documentation and Integration
+
+- [ ] **Update infrastructure issues documentation** [enforce-ssh-signatures] (Medium Priority)
   - [ ] Update `src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md` with progress
-  - [ ] Document the implementation of the Inception Authority trust model in practice
-
-### Stage 3: Implementation
-- [ ] **Create automation script** [enforce-ssh-signatures]
-  - [ ] Develop `src/configure_ssh_signatures.sh` following framework script requirements
-  - [ ] Implement local and GitHub configuration capabilities
-  - [ ] Add regression tests and test output reference files
-  - [ ] Test against a dedicated GitHub test repository
-
-### Stage 4: Issue Resolution
-- [ ] **Update related issue documentation** [enforce-ssh-signatures]
-  - [ ] Update the issue in ISSUES-Open_Integrity_Scripting_Infrastructure.md with implementation progress
-  - [ ] Mark issue as PARTIALLY RESOLVED or RESOLVED as appropriate
+  - [ ] Document architectural decisions made during implementation
+  - [ ] Mark relevant issues as PARTIALLY RESOLVED or RESOLVED as appropriate
   - [ ] Document any limitations or future work needed
+
+- [ ] **Create comprehensive user guides** [enforce-ssh-signatures] (Medium Priority)
+  - [ ] Create step-by-step guides for repository administrators
+  - [ ] Document bootstrapping process for new repositories
+  - [ ] Create troubleshooting guides for common issues
+  - [ ] Include guidance for transitioning from legacy protection mechanisms
+
+### Stage 8: Final Pull Request and Integration
+
+- [ ] **Prepare final changes for review** [enforce-ssh-signatures]
+  - [ ] Perform thorough pre-commit review of all changes
+    - [ ] Use `git diff` to review each file individually
+    - [ ] Verify consistency across files
+    - [ ] **CRITICAL**: Human author personally reviews all changes
+  - [ ] Stage files individually with separate `git add <file>` commands
+  - [ ] Human author creates properly formatted commits following CLAUDE.md guidance
+  - [ ] Ensure commits are signed (`-S`) and include sign-off (`-s`)
+  
+- [ ] **Create and process final pull request** [enforce-ssh-signatures]
+  - [ ] Push branch to GitHub (if not already using draft PR)
+  - [ ] Create or convert to ready PR for merging to main
+  - [ ] Review PR locally
+  - [ ] Review PR on GitHub
+  - [ ] Address any feedback from PR review
+  - [ ] Approve and merge PR
 
 ## Unassigned to Branch
 
