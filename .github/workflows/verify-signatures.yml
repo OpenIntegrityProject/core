@@ -1,0 +1,55 @@
+name: Verify Signatures
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    name: Verify Repository Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Set up ZSH
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zsh
+      
+      - name: Run Integrity Audit
+        run: |
+          zsh ./src/audit_inception_commit-POC.sh
+      
+      - name: Get Repository DID
+        run: |
+          zsh ./src/get_repo_did.sh
+      
+      - name: Verify Signatures
+        run: |
+          # Create temporary allowed signers file for verification
+          mkdir -p /tmp/allowed_signers
+          echo '@ChristopherA namespaces="git" ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOiCXeyP5P/TEVi4U2KFXFi2zRIc9kwe+h1SQxIb1F8Z' > /tmp/allowed_signers/allowed
+          git config --global gpg.ssh.allowedSignersFile /tmp/allowed_signers/allowed
+          
+          # Verify signatures on all commits in main branch
+          git log --show-signature origin/main
+          
+          # Check for unsigned commits
+          UNSIGNED_COMMITS=$(git log --pretty=format:%H origin/main | while read commit; do 
+            if ! git verify-commit $commit 2>/dev/null; then
+              echo "- Unsigned commit: $commit ($(git log -1 --pretty=format:%s $commit))"
+            fi
+          done)
+          
+          if [ -n "$UNSIGNED_COMMITS" ]; then
+            echo "::warning ::The following commits are not properly signed:"
+            echo "$UNSIGNED_COMMITS"
+            echo "All commits should be signed according to Open Integrity requirements."
+          else
+            echo "✅ All commits are properly signed."
+          fi
