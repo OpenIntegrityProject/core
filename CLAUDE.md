@@ -15,10 +15,11 @@ The Open Integrity Project integrates cryptographic trust mechanisms into Git re
 - Get a repository's DID: `./src/get_repo_did.sh -C /path/to/repo`
 
 ## Development Commands
-- Run regression tests: `./src/tests/TEST-audit_inception_commit.sh`
+- Run regression tests (from repository root): `./src/tests/TEST-audit_inception_commit.sh`
 - Run regression tests with verbose output: `./src/tests/TEST-audit_inception_commit.sh --verbose`
 - Update regression test output reference:
   ```bash
+  # Always run tests from the repository root
   # First capture regular output
   ./src/tests/TEST-audit_inception_commit.sh > src/tests/OUTPUT-TEST-audit_inception_commit.txt 2>&1
   
@@ -29,8 +30,14 @@ The Open Integrity Project integrates cryptographic trust mechanisms into Git re
 ## Post-Test Process
 When tests pass successfully (after modifying scripts, paths, or test expectations), follow these steps:
 
-1. For each test script, process it individually:
+1. Ensure test output file naming is consistent:
+   - Test output files should match the test script name (e.g., TEST-script-name.sh → OUTPUT-TEST-script-name.txt)
+   - Avoid redundant or duplicate output files with variant names
+   - When renaming/removing tracked files, use git commands (git mv, git rm) rather than filesystem commands
+
+2. For each test script, process it individually:
    ```bash
+   # Always run tests from the repository root
    # Run the test and capture both standard and verbose output
    ./src/tests/TEST-script-name.sh > src/tests/OUTPUT-TEST-script-name.txt 2>&1
    ./src/tests/TEST-script-name.sh --verbose >> src/tests/OUTPUT-TEST-script-name.txt 2>&1
@@ -61,6 +68,7 @@ When preparing a new version release, follow these steps:
 
 2. Run regression tests and update reference output:
    ```bash
+   # Always run tests from the repository root
    # Verify all tests pass
    ./src/tests/TEST-audit_inception_commit.sh --verbose
    
@@ -129,7 +137,8 @@ When encountering issues with script behavior:
 
 3. **Test with --debug flag** before making changes permanent:
    ```
-   ./script_name.sh --debug [other options]
+   # Always run scripts from the repository root
+   ./src/script_name.sh --debug [other options]
    ```
 
 4. **Remove or comment out debug statements** after resolving issues unless they provide ongoing value for maintenance.
@@ -151,6 +160,27 @@ When implementing system-wide architectural decisions:
 3. **Update regression tests** to align with new architectural decisions
    - Consider both immediate and long-term impact on test expectations
    - Document reason for changes in test expectations
+
+## Process Requirements
+
+When working with files and directories:
+
+1. **Always check if files or directories exist before creating them:**
+   - Use `test -f` or `[[ -f ]]` to check for file existence
+   - Use `test -d` or `[[ -d ]]` to check for directory existence
+   - Check `.gitignore` to see if a path is already excluded before suggesting additions
+   - Look for existing configuration before creating new files
+
+2. **Run all scripts and tests from the repository root:**
+   - Never `cd` into subdirectories to run scripts or tests
+   - Use absolute or relative paths from the repository root in examples
+   - Maintain consistent working directory references in documentation
+
+3. **Check git tracking status before removing files:**
+   - Use `git ls-files <path>` to check if a file is tracked by git
+   - Use `git rm <path>` instead of `rm <path>` for tracked files
+   - For directories, use `git rm -r <directory>` for tracked directories
+   - For untracked files, regular `rm` or `rm -r` can be used
 
 ## Enhanced Commit Message Guidelines
 
