@@ -2,10 +2,10 @@
 ########################################################################
 ## Script:        create_inception_commit.sh
 ## Version:       0.1.03 (2025-03-03)
-## Origin:        https://github.com/BlockchainCommons/open_integrity-git_inception_WIP/snippets/create_inception_commit.sh
+## Origin:        https://github.com/OpenIntegrityProject/core/blob/main/src/create_inception_commit.sh
 ## Description:   Creates a new Git repository with a properly signed empty
 ##                inception commit following Open Integrity Project standards.
-## License:       BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html)
+## License:       BSD-2-Clause-Patent (https://spdx.org/licenses/BSD-2-Clause-Patent.html)
 ## Copyright:     (c) 2025 Blockchain Commons LLC (https://www.BlockchainCommons.com)
 ## Attribution:   Christopher Allen <ChristopherA@LifeWithAlacrity.com>
 ## Usage:         create_inception_commit.sh [-r|--repo <directory>]
