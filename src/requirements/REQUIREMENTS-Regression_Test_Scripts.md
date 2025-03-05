@@ -1,7 +1,7 @@
 # Regression Test Scripts Requirements
-> - _DID: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/REQUIREMENTS-Regression_Test_Scripts.md`_
-> - _GitHub: [`scripts/requirements/REQUIREMENTS-Regression_Tests_Scripts.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Regression_Tests_Scripts.md)_
-> - _Updated: 2025-03-02 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _DID: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/src/requirements/REQUIREMENTS-Regression_Test_Scripts.md`_
+> - _GitHub: [`core/src/requirements/REQUIREMENTS-Regression_Test_Scripts.md`](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-Regression_Test_Scripts.md)_
+> - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
 [![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
