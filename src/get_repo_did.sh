@@ -2,10 +2,10 @@
 ########################################################################
 ## Script:        get_repo_did.sh
 ## Version:       0.1.00 (2025-02-25)
-## Origin:        https://github.com/BlockchainCommons/scripts/tree/main/snippets/get_repo_did.sh
+## Origin:        https://github.com/OpenIntegrityProject/core/blob/main/src/get_repo_did.sh
 ## Description:   Retrieves the first commit (Inception Commit) hash of a Git 
 ##                repository and formats it as a W3C Decentralized Identifier (DID).
-## License:       BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html)
+## License:       BSD-2-Clause-Patent (https://spdx.org/licenses/BSD-2-Clause-Patent.html)
 ## Copyright:     (c) 2025 Blockchain Commons LLC (https://www.BlockchainCommons.com)
 ## Attribution:   Authored by @ChristopherA <ChristopherA@LifeWithAlacrity.com>
 ## Usage:         get_repo_did.sh [-C|--chdir <path>]
