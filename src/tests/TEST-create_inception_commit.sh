@@ -28,13 +28,14 @@ setopt errexit nounset pipefail localoptions warncreateglobal
 typeset -r Script_Name=$(basename "$0")
 typeset -r Script_Version="0.1.03"  # Updated version
 typeset -r Script_Dir=$(dirname "$0:A")
+typeset -r Repo_Root=$(realpath "${Script_Dir}/..")
 
 # Define TRUE/FALSE constants
 typeset -r TRUE=1
 typeset -r FALSE=0
 
 # Script-scoped variables
-typeset -r Target_Script="${Script_Dir}/../create_inception_commit.sh"
+typeset -r Target_Script="${Repo_Root}/create_inception_commit.sh"
 typeset -i Verbose_Mode=$FALSE
 
 # Generate unique test directory names to prevent collisions

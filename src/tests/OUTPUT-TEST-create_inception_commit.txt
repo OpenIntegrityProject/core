@@ -1,0 +1,266 @@
+=== TEST-create_inception_commit.sh v0.1.03 ===
+Parsing command line parameters...
+Starting tests for create_inception_commit.sh
+Target script: /Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh
+Cleaning up test directories...
+Test directories prepared at /tmp/oi_test_repos_1741138935_9170
+
+===== Testing help and basic functionality =====
+TEST: Help display
+✅ PASSED
+TEST: Default repository creation
+✅ PASSED
+TEST: Named repository with --repo
+✅ PASSED
+
+===== Testing path creation =====
+TEST: Nested path creation
+✅ PASSED
+TEST: Relative path creation
+✅ PASSED
+TEST: Absolute path creation
+✅ PASSED
+TEST: System temp directory
+✅ PASSED
+
+===== Testing error cases =====
+TEST: Invalid option
+✅ PASSED
+TEST: Existing repository (should fail)
+✅ PASSED
+TEST: No arguments (creates default name)
+✅ PASSED
+
+===== Checking repository conformance: /tmp/oi_test_repos_1741138935_9170/conformance_test_repo =====
+TEST: Repository DID consistency
+✅ PASSED
+TEST: Empty commit conformance
+✅ PASSED
+TEST: Committer name format
+✅ PASSED
+INFO: Committer name set to: SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+TEST: Commit message content
+✅ PASSED
+TEST: Commit sign-off present
+✅ PASSED
+TEST: Commit authorship
+✅ PASSED
+TEST: Signature conformance
+✅ PASSED
+TEST: Empty tree verification
+✅ PASSED
+✅ Repository conforms to Open Integrity inception commit standards
+
+===== TEST SUMMARY =====
+Total tests: 18
+Passed:      18
+Failed:      0
+
+🎉 ALL TESTS PASSED! 🎉
+=== TEST-create_inception_commit.sh v0.1.03 ===
+Parsing command line parameters...
+Verbose mode enabled
+Starting tests for create_inception_commit.sh
+Target script: /Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh
+Cleaning up test directories...
+Test directories prepared at /tmp/oi_test_repos_1741138947_24144
+
+===== Testing help and basic functionality =====
+TEST: Help display
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" --help
+create_inception_commit.sh v0.1.02 - Create an Open Integrity signed inception commit
+
+Usage: create_inception_commit.sh [-r|--repo <directory>]
+Creates a new Git repository with a properly signed inception commit.
+
+Options:
+  -r, --repo <directory>  Specify repository directory path
+                          (default: new_open_integrity_repo)
+  -h, --help              Show this help message
+
+Examples:
+  create_inception_commit.sh                      Create with default name
+  create_inception_commit.sh --repo my_repo       Create with custom name
+  create_inception_commit.sh --repo /path/to/repo Create with full path
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: usage
+✅ PASSED
+TEST: Default repository creation
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" -r "/tmp/oi_test_repos_1741138947_24144/default_repo"
+[main (root-commit) 2044b86] Initialize repository and establish a SHA-1 root of trust
+ Author: @ChristopherA <ChristopherA@LifeWithAlacrity.com>
+✅ Repository initialized with signed inception commit at ../../../../../../..//private/tmp/oi_test_repos_1741138947_24144/default_repo
+Inception commit: 2044b86f17baddace4e8ccd70575828c9fb2b745
+✅ Commit signature verified successfully:
+Good "git" signature for @ChristopherA with ED25519 key SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+Repository DID: did:repo:2044b86f17baddace4e8ccd70575828c9fb2b745
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: repository initialized
+✅ PASSED
+TEST: Named repository with --repo
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" --repo "/tmp/oi_test_repos_1741138947_24144/named_repo"
+[main (root-commit) 2044b86] Initialize repository and establish a SHA-1 root of trust
+ Author: @ChristopherA <ChristopherA@LifeWithAlacrity.com>
+✅ Repository initialized with signed inception commit at ../../../../../../..//private/tmp/oi_test_repos_1741138947_24144/named_repo
+Inception commit: 2044b86f17baddace4e8ccd70575828c9fb2b745
+✅ Commit signature verified successfully:
+Good "git" signature for @ChristopherA with ED25519 key SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+Repository DID: did:repo:2044b86f17baddace4e8ccd70575828c9fb2b745
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: repository initialized
+✅ PASSED
+
+===== Testing path creation =====
+TEST: Nested path creation
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" -r "/tmp/oi_test_repos_1741138947_24144/nested/deeper/path"
+Created parent directory: /tmp/oi_test_repos_1741138947_24144/nested/deeper
+[main (root-commit) 2044b86] Initialize repository and establish a SHA-1 root of trust
+ Author: @ChristopherA <ChristopherA@LifeWithAlacrity.com>
+✅ Repository initialized with signed inception commit at ../../../../../../..//private/tmp/oi_test_repos_1741138947_24144/nested/deeper/path
+Inception commit: 2044b86f17baddace4e8ccd70575828c9fb2b745
+✅ Commit signature verified successfully:
+Good "git" signature for @ChristopherA with ED25519 key SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+Repository DID: did:repo:2044b86f17baddace4e8ccd70575828c9fb2b745
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: created parent directory
+✅ PASSED
+TEST: Relative path creation
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" -r "/tmp/oi_test_repos_1741138947_24144/relative_path_repo"
+[main (root-commit) 2044b86] Initialize repository and establish a SHA-1 root of trust
+ Author: @ChristopherA <ChristopherA@LifeWithAlacrity.com>
+✅ Repository initialized with signed inception commit at ../../../../../../..//private/tmp/oi_test_repos_1741138947_24144/relative_path_repo
+Inception commit: 2044b86f17baddace4e8ccd70575828c9fb2b745
+✅ Commit signature verified successfully:
+Good "git" signature for @ChristopherA with ED25519 key SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+Repository DID: did:repo:2044b86f17baddace4e8ccd70575828c9fb2b745
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: repository initialized
+✅ PASSED
+TEST: Absolute path creation
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" -r "/Users/christophera/Documents/Workspace/github/openintegrityproject/core//tmp/oi_test_repos_1741138947_24144/absolute_path_repo"
+Created parent directory: /Users/christophera/Documents/Workspace/github/openintegrityproject/core//tmp/oi_test_repos_1741138947_24144
+[main (root-commit) 2044b86] Initialize repository and establish a SHA-1 root of trust
+ Author: @ChristopherA <ChristopherA@LifeWithAlacrity.com>
+✅ Repository initialized with signed inception commit at ./tmp/oi_test_repos_1741138947_24144/absolute_path_repo
+Inception commit: 2044b86f17baddace4e8ccd70575828c9fb2b745
+✅ Commit signature verified successfully:
+Good "git" signature for @ChristopherA with ED25519 key SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+Repository DID: did:repo:2044b86f17baddace4e8ccd70575828c9fb2b745
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: repository initialized
+✅ PASSED
+TEST: System temp directory
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" -r "/tmp/oi_test_tmp_repo_1741138947_24144"
+[main (root-commit) 2044b86] Initialize repository and establish a SHA-1 root of trust
+ Author: @ChristopherA <ChristopherA@LifeWithAlacrity.com>
+✅ Repository initialized with signed inception commit at ../../../../../../..//private/tmp/oi_test_tmp_repo_1741138947_24144
+Inception commit: 2044b86f17baddace4e8ccd70575828c9fb2b745
+✅ Commit signature verified successfully:
+Good "git" signature for @ChristopherA with ED25519 key SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+Repository DID: did:repo:2044b86f17baddace4e8ccd70575828c9fb2b745
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: repository initialized
+✅ PASSED
+
+===== Testing error cases =====
+TEST: Invalid option
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" --invalid-option 2>&1
+❌ ERROR: Unknown option: --invalid-option
+create_inception_commit.sh v0.1.02 - Create an Open Integrity signed inception commit
+
+Usage: create_inception_commit.sh [-r|--repo <directory>]
+Creates a new Git repository with a properly signed inception commit.
+
+Options:
+  -r, --repo <directory>  Specify repository directory path
+                          (default: new_open_integrity_repo)
+  -h, --help              Show this help message
+
+Examples:
+  create_inception_commit.sh                      Create with default name
+  create_inception_commit.sh --repo my_repo       Create with custom name
+  create_inception_commit.sh --repo /path/to/repo Create with full path
+EXIT CODE: 2 (Expected: 2)
+MATCHING PATTERN: unknown option
+✅ PASSED
+TEST: Existing repository (should fail)
+COMMAND: "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" -r "/tmp/oi_test_repos_1741138947_24144/existing_dir" 2>&1
+❌ ERROR: Repository already exists at /tmp/oi_test_repos_1741138947_24144/existing_dir
+EXIT CODE: 3 (Expected: 3)
+MATCHING PATTERN: already exists
+✅ PASSED
+TEST: No arguments (creates default name)
+COMMAND: cd "/tmp/oi_test_repos_1741138947_24144" && "/Users/christophera/Documents/Workspace/github/openintegrityproject/core/src/create_inception_commit.sh" && cd - > /dev/null
+[main (root-commit) 2044b86] Initialize repository and establish a SHA-1 root of trust
+ Author: @ChristopherA <ChristopherA@LifeWithAlacrity.com>
+✅ Repository initialized with signed inception commit at ./new_open_integrity_repo
+Inception commit: 2044b86f17baddace4e8ccd70575828c9fb2b745
+✅ Commit signature verified successfully:
+Good "git" signature for @ChristopherA with ED25519 key SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+Repository DID: did:repo:2044b86f17baddace4e8ccd70575828c9fb2b745
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: repository initialized
+✅ PASSED
+
+===== Checking repository conformance: /tmp/oi_test_repos_1741138947_24144/conformance_test_repo =====
+TEST: Repository DID consistency
+COMMAND: cd "/tmp/oi_test_repos_1741138947_24144/conformance_test_repo" && git rev-parse HEAD && cd - > /dev/null
+2044b86f17baddace4e8ccd70575828c9fb2b745
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: [0-9a-f]
+✅ PASSED
+TEST: Empty commit conformance
+COMMAND: cd "/tmp/oi_test_repos_1741138947_24144/conformance_test_repo" && git show --name-only HEAD | grep -A 5 "commit"
+commit 2044b86f17baddace4e8ccd70575828c9fb2b745
+Author: @ChristopherA <ChristopherA@LifeWithAlacrity.com>
+Date:   Wed Mar 5 01:42:27 2025 +0000
+
+    Initialize repository and establish a SHA-1 root of trust
+    
+    This key also certifies future commits' integrity and origin. Other keys can be authorized to add additional commits via the creation of a ./.repo/config/verification/allowed_commit_signers file. This file must initially be signed by this repo's inception key, granting these keys the authority to add future commits to this repo, including the potential to remove the authority of this inception key for future commits. Once established, any changes to ./.repo/config/verification/allowed_commit_signers must be authorized by one of the previously approved signers.
+    
+    Signed-off-by: SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw <ChristopherA@LifeWithAlacrity.com>
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: initialize
+✅ PASSED
+TEST: Committer name format
+COMMAND: echo "SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw" | grep -q "^SHA256:"
+
+EXIT CODE: 0 (Expected: 0)
+✅ PASSED
+INFO: Committer name set to: SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+TEST: Commit message content
+COMMAND: cd "/tmp/oi_test_repos_1741138947_24144/conformance_test_repo" && git log -1 --pretty=%B | grep -q "Initialize repository and establish a SHA-1 root of trust"
+
+EXIT CODE: 0 (Expected: 0)
+✅ PASSED
+TEST: Commit sign-off present
+COMMAND: cd "/tmp/oi_test_repos_1741138947_24144/conformance_test_repo" && git log -1 --pretty=%B | grep -q "^Signed-off-by:"
+
+EXIT CODE: 0 (Expected: 0)
+✅ PASSED
+TEST: Commit authorship
+COMMAND: cd "/tmp/oi_test_repos_1741138947_24144/conformance_test_repo" && git show --no-patch --format="%an <%ae>" HEAD
+@ChristopherA <ChristopherA@LifeWithAlacrity.com>
+EXIT CODE: 0 (Expected: 0)
+✅ PASSED
+TEST: Signature conformance
+COMMAND: cd "/tmp/oi_test_repos_1741138947_24144/conformance_test_repo" && ! git verify-commit HEAD 2>&1 | grep -q 'No principal matched' && git verify-commit HEAD 2>&1
+Good "git" signature for @ChristopherA with ED25519 key SHA256:a61TkTtLFGEYOmdRMbpYGkZwXw2QUrGkAWp3dok8jcw
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: good.*signature
+✅ PASSED
+TEST: Empty tree verification
+COMMAND: cd "/tmp/oi_test_repos_1741138947_24144/conformance_test_repo" && git ls-tree -r HEAD | wc -l | tr -d ' '
+0
+EXIT CODE: 0 (Expected: 0)
+MATCHING PATTERN: ^0$
+✅ PASSED
+✅ Repository conforms to Open Integrity inception commit standards
+
+===== TEST SUMMARY =====
+Total tests: 18
+Passed:      18
+Failed:      0
+
+🎉 ALL TESTS PASSED! 🎉
