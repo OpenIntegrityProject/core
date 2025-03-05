@@ -1,7 +1,11 @@
-_file: `REQUIREMENTS-Zsh_Snippet_Scripting_Best_Practices.md`_
-
 # Zsh Snippet Scripting Requirements and Best Practices
-_(last updated 2024-03-01, Christopher Allen <ChristopherA@LifeWithAlacrity.com> Github/Twitter/Bluesky: @ChristopherA)_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/src/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md`_
+> - _github: [`core/src/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md`](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md)_
+> - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com> Github/Twitter/Bluesky: @ChristopherA_
+
+[![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
+[![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
 
 ## Introduction
 Zsh Snippet scripts are **small, self-contained, and executable**, typically **less than 75 lines** (excluding comment lines and variable declarations), but should remain **under 200 lines of code**. They should be **concise**, **modular**, and **follow best practices** while avoiding unnecessary complexity.
@@ -323,7 +327,7 @@ Even though Zsh Snippets are brief, they must contain a **minimal metadata block
 - Text must have **at least 9 entries** to ensure comprehensive documentation *(Required)*
 - Must include: *(Required)*
   - **Script name, Version, Description, and repository origin link**
-  - **Use BSD-3-Clause license** (or specified project license)
+  - **Use BSD-2-Clause-Patent license** (or specified project license)
   - **Attribution to original author(s)** 
   - **Usage** with syntax and parameters
   - **Examples** showing typical usage
@@ -343,7 +347,7 @@ Even though Zsh Snippets are brief, they must contain a **minimal metadata block
 ## Origin:        https://github.com/BlockchainCommons/scripts/tree/main/snippets/get_repo_did.sh
 ## Description:   Retrieves the first commit (Inception Commit) hash of a Git 
 ##                repository and formats it as a W3C Decentralized Identifier (DID).
-## License:       BSD-3-Clause (https://spdx.org/licenses/BSD-3-Clause.html)
+## License:       BSD-2-Clause-Patent (https://spdx.org/licenses/BSD-2-Clause-Patent.html)
 ## Copyright:     (c) 2025 Blockchain Commons LLC (https://www.BlockchainCommons.com)
 ## Attribution:   Authored by @ChristopherA <ChristopherA@LifeWithAlacrity.com>
 ## Usage:         get_repo_did.sh [-C|--chdir <path>]
