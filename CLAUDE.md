@@ -4,20 +4,68 @@
 
 The Open Integrity Project uses specific terminology for each phase of the Progressive Trust model. For the comprehensive terminology guidelines, please refer to:
 
-- [Progressive Trust Terminology Requirements](requirements/REQUIREMENTS-Progressive_Trust_Terminology.md)
+- [Progressive Trust Terminology Requirements](src/requirements/REQUIREMENTS-Progressive_Trust_Terminology.md)
 
 The Open Integrity Project integrates cryptographic trust mechanisms into Git repositories, establishing verifiable chains of integrity, provenance, and authorship. For a comprehensive overview, see the [README.md](README.md).
 
 ## Common Commands
-- Audit this repository: `./audit_inception_commit-POC.sh`
-- Audit another repository: `./audit_inception_commit-POC.sh -C /path/to/repo`
-- Create repository with signed inception commit: `./snippets/create_inception_commit.sh -r my_new_repo`
-- Get a repository's DID: `./snippets/get_repo_did.sh -C /path/to/repo`
+- Audit this repository: `./src/audit_inception_commit-POC.sh`
+- Audit another repository: `./src/audit_inception_commit-POC.sh -C /path/to/repo`
+- Create repository with signed inception commit: `./src/create_inception_commit.sh -r my_new_repo`
+- Get a repository's DID: `./src/get_repo_did.sh -C /path/to/repo`
 
 ## Development Commands
-- Run regression tests: `./tests/TEST-audit_inception_commit.sh`
-- Run regression tests with verbose output: `./tests/TEST-audit_inception_commit.sh --verbose`
-- Update regression test output reference: `./tests/TEST-audit_inception_commit.sh > tests/OUTPUT-TEST-audit_inception_commit.txt 2>&1`
+- Run regression tests: `./src/tests/TEST-audit_inception_commit.sh`
+- Run regression tests with verbose output: `./src/tests/TEST-audit_inception_commit.sh --verbose`
+- Update regression test output reference:
+  ```bash
+  # First capture regular output
+  ./src/tests/TEST-audit_inception_commit.sh > src/tests/OUTPUT-TEST-audit_inception_commit.txt 2>&1
+  
+  # Then append verbose output
+  ./src/tests/TEST-audit_inception_commit.sh --verbose >> src/tests/OUTPUT-TEST-audit_inception_commit.txt 2>&1
+  ```
+
+## Post-Test Process
+When tests pass successfully, follow these steps:
+
+1. For non-version updates (bug fixes, minor changes):
+   ```bash
+   # Update test output reference - both regular and verbose outputs
+   ./src/tests/TEST-script-name.sh > src/tests/OUTPUT-TEST-script-name.txt 2>&1
+   ./src/tests/TEST-script-name.sh --verbose >> src/tests/OUTPUT-TEST-script-name.txt 2>&1
+   
+   # Commit test script and output reference together
+   git add src/tests/TEST-script-name.sh src/tests/OUTPUT-TEST-script-name.txt
+   git commit -S -s -m "Update TEST-script-name.sh and test output reference
+   
+   - Fix test expectations to match current behavior
+   - Update test output reference to reflect changes
+   
+   Tests reflect current functionality accurately."
+   ```
+
+2. For structural changes or file path modifications:
+   ```bash
+   # Commit test script changes first
+   git add src/tests/TEST-script-name.sh
+   git commit -S -s -m "Update TEST-script-name.sh path references
+   
+   - Adjust file paths to match new directory structure
+   - Update test expectations for changed behavior"
+   
+   # Update output reference files after script changes are committed
+   ./src/tests/TEST-script-name.sh > src/tests/OUTPUT-TEST-script-name.txt 2>&1
+   ./src/tests/TEST-script-name.sh --verbose >> src/tests/OUTPUT-TEST-script-name.txt 2>&1
+   
+   # Commit output reference separately
+   git add src/tests/OUTPUT-TEST-script-name.txt
+   git commit -S -s -m "Update test output reference for TEST-script-name.sh
+   
+   - Reflect new directory structure in output
+   - Include both regular and verbose test outputs
+   - Match current script behavior"
+   ```
 
 ## Version Update Process
 When preparing a new version release, follow these steps:
@@ -28,9 +76,13 @@ When preparing a new version release, follow these steps:
    - Add CHANGE LOG entry with details of changes
 
 2. Run regression tests and update reference output:
-   ```
-   ./tests/TEST-audit_inception_commit.sh --verbose  # Verify all tests pass
-   ./tests/TEST-audit_inception_commit.sh > tests/OUTPUT-TEST-audit_inception_commit.txt 2>&1  # Update reference
+   ```bash
+   # Verify all tests pass
+   ./src/tests/TEST-audit_inception_commit.sh --verbose
+   
+   # Update reference output with both regular and verbose outputs
+   ./src/tests/TEST-audit_inception_commit.sh > src/tests/OUTPUT-TEST-audit_inception_commit.txt 2>&1
+   ./src/tests/TEST-audit_inception_commit.sh --verbose >> src/tests/OUTPUT-TEST-audit_inception_commit.txt 2>&1
    ```
 
 3. Update any relevant issue documents:
@@ -155,35 +207,35 @@ When creating commits:
 
 ## Main Scripts
 
-### 🔍 `audit_inception_commit-POC.sh`
+### 🔍 `src/audit_inception_commit-POC.sh`
 - **Purpose**: Audit a repository's inception commit
-- **Requirements**: [requirements/REQUIREMENTS-audit_inception_commit-POC.md](requirements/REQUIREMENTS-audit_inception_commit-POC.md)
-- **Issues**: [issues/ISSUES-audit_inception_commit-POC.md](issues/ISSUES-audit_inception_commit-POC.md)
-- **Test**: [tests/TEST-audit_inception_commit.sh](tests/TEST-audit_inception_commit.sh)
+- **Requirements**: [src/requirements/REQUIREMENTS-audit_inception_commit-POC.md](src/requirements/REQUIREMENTS-audit_inception_commit-POC.md)
+- **Issues**: [src/issues/ISSUES-audit_inception_commit-POC.md](src/issues/ISSUES-audit_inception_commit-POC.md)
+- **Test**: [src/tests/TEST-audit_inception_commit.sh](src/tests/TEST-audit_inception_commit.sh)
 
-### 🏗️ `snippets/create_inception_commit.sh`
+### 🏗️ `src/create_inception_commit.sh`
 - **Purpose**: Create a repository with a signed inception commit
-- **Requirements**: [snippets/requirements/REQUIREMENTS-create_inception_commit.md](snippets/requirements/REQUIREMENTS-create_inception_commit.md)
-- **Test**: [snippets/tests/TEST-create_inception_commit.sh](snippets/tests/TEST-create_inception_commit.sh)
+- **Requirements**: [src/requirements/REQUIREMENTS-create_inception_commit.md](src/requirements/REQUIREMENTS-create_inception_commit.md)
+- **Test**: [src/tests/TEST-create_inception_commit.sh](src/tests/TEST-create_inception_commit.sh)
 
-### 🔍 `snippets/get_repo_did.sh`
+### 🔍 `src/get_repo_did.sh`
 - **Purpose**: Get a repository's DID
-- **Requirements**: [snippets/requirements/REQUIREMENTS-get_repo_did.md](snippets/requirements/REQUIREMENTS-get_repo_did.md)
+- **Requirements**: [src/requirements/REQUIREMENTS-get_repo_did.md](src/requirements/REQUIREMENTS-get_repo_did.md)
 
 ## Reference Documents
 
 ### Requirements
-- Core principles: [requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md](requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md)
-- Snippet scripts: [requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md](requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md)
-- Framework scripts: [requirements/REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md](requirements/REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md)
-- Utility functions: [requirements/REQUIREMENTS-z_Utils_Functions.md](requirements/REQUIREMENTS-z_Utils_Functions.md)
-- Regression tests: [requirements/REQUIREMENTS-Regression_Test_Scripts.md](requirements/REQUIREMENTS-Regression_Test_Scripts.md)
-- Snippet requirements: [snippets/requirements/](snippets/requirements/)
+- Core principles: [src/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md](src/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md)
+- Script best practices: [src/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md](src/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md)
+- Framework scripts: [src/requirements/REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md](src/requirements/REQUIREMENTS-Zsh_Framework_Scripting_Best_Practices.md)
+- Utility functions: [src/requirements/REQUIREMENTS-z_Utils_Functions.md](src/requirements/REQUIREMENTS-z_Utils_Functions.md)
+- Regression tests: [src/requirements/REQUIREMENTS-Regression_Test_Scripts.md](src/requirements/REQUIREMENTS-Regression_Test_Scripts.md)
+- Progressive Trust terminology: [src/requirements/REQUIREMENTS-Progressive_Trust_Terminology.md](src/requirements/REQUIREMENTS-Progressive_Trust_Terminology.md)
 
 ### Issues
-- Core issues: [issues/](issues/)
-- Infrastructure issues: [issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md](issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md)
+- Infrastructure issues: [src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md](src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md)
+- Core scripting issues: [src/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md](src/issues/ISSUES-Zsh_Core_Scripting_Best_Practices.md)
 
 ## Templates
-- Snippet: [snippets/snippet_template.sh](snippets/snippet_template.sh)
+- Script template: [src/snippet_template.sh](src/snippet_template.sh)
 - Framework: `z_min_frame.sh` or `z_frame.sh`
