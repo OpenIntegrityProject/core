@@ -1,7 +1,7 @@
 # Open Integrity Project
 > - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/README.md`_
 > - _github: `https://github.com/OpenIntegrityProject/core/blob/main/README.md`_
-> - _updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _updated: 2025-03-05 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 ## 📖 Introduction
 
@@ -10,6 +10,7 @@ _**Cryptographic Roots of Trust for Open Source Development**_
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)
 [![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](CHANGELOG.md)
+[![Verify Signatures](https://github.com/OpenIntegrityProject/core/actions/workflows/verify-signatures.yml/badge.svg)](https://github.com/OpenIntegrityProject/core/actions/workflows/verify-signatures.yml)
 
 **Open Integrity** is an initiative by [Blockchain Commons](https://www.blockchaincommons.com) to integrate cryptographic trust mechanisms into Git repositories. By leveraging Git's native SSH signing capabilities and structured verification processes, we ensure transparency, provenance, and immutability for software projects.
 
@@ -50,6 +51,8 @@ This repository contains the core implementation and documentation for the Open 
 - 📜 [Problem Statement](docs/Open_Integrity_Problem_Statement.md) – Challenges & solutions for cryptographic roots of trust using Git repositories
 - 📟 [CLI One-Liners](docs/Open_Integrity-CLI_One_Liners.md) – Practical command-line shortcuts for Open Integrity
 - 📂 [Repository Structure](docs/Open_Integrity_Repo_Directory_Structure.md) – Open Integrity repository structure reference
+- 🔧 [Repository Structure Implementation](docs/Repository_Structure_Implementation.md) – Guide to implementing the `.repo` directory structure
+- 📋 [Implementation Strategy](docs/Implementation_Strategy.md) – Roadmap for evolving from proof-of-concept to production
 - 🛣️ [Project Roadmap](ROADMAP.md) – Development milestones and plans
 - 🤝 [Contributing Guidelines](CONTRIBUTING.md) – How to contribute
 - 🔒 [Security Policy](SECURITY.md) – Reporting vulnerabilities
@@ -59,11 +62,6 @@ This repository contains the core implementation and documentation for the Open 
 - 📖 [Documentation Website](https://OpenIntegrityProject.info)
 - 💬 [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions)
 - ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/community/issues)
-
-### 📝 Planned Resources
-
-- 🚀 [Getting Started Guide] – Step-by-step guide to set up your first Open Integrity repository
-- 🏛 [Architecture Documentation] – System design & implementation details
 
 ### 🛠 Core Implementation
 
@@ -75,39 +73,62 @@ This repository contains the core implementation and documentation for the Open 
   - 🔍 [`audit_inception_commit-POC.sh`](src/audit_inception_commit-POC.sh) - Audit repositories for compliance
   - 🏗️ [`create_inception_commit.sh`](src/create_inception_commit.sh) - Create repositories with inception commits
   - 🪪 [`get_repo_did.sh`](src/get_repo_did.sh) - Retrieve repository DIDs
+  - 📂 [`create_repo_structure.sh`](src/create_repo_structure.sh) - Create standard `.repo` directory structure
+  - 🔐 [`manage_allowed_signers.sh`](src/manage_allowed_signers.sh) - Manage authorized signing keys
+  - 🛟 [Git Hooks](src/hooks/) - Enforce signing and integrity requirements
 
 ## 🚀 Quick Start
 
 Get started with Open Integrity by:
-1. Set up your development environment for signing
-2. Create a repository with an inception commit establishing your root of trust
-3. Choose your trust model:
-   - Direct verification using the inception key
-   - OR delegated verification through authorized signers
-4. Run Open Integrity audits on your repositories
+
+### 1. Set up your environment
 
 ```bash
-# Example: Create a repository with a signed inception commit
-./src/create_inception_commit.sh -r my_new_repo
+# Configure Git for SSH signing
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/your_key
+git config --global commit.gpgsign true
+```
 
-# Example: Audit a repository's inception commit
+### 2. Create Repository Structure
+
+```bash
+# Create the standard .repo directory structure
+./src/create_repo_structure.sh --repo my_project
+
+# Add yourself as an authorized signer
+./src/manage_allowed_signers.sh add --key ~/.ssh/id_ed25519.pub --name "Your Name"
+```
+
+### 3. Create a Repository with an Inception Commit
+
+```bash
+# Create a new repository with a signed inception commit
+./src/create_inception_commit.sh -r my_new_repo
+```
+
+### 4. Verify Repository Integrity
+
+```bash
+# Audit a repository's inception commit
 ./src/audit_inception_commit-POC.sh -C /path/to/repo
 
-# Example: Get a repository's DID
+# Get a repository's DID
 ./src/get_repo_did.sh -C /path/to/repo
 ```
 
-For a deeper dive, check out our [Problem Statement](docs/Open_Integrity_Problem_Statement.md) and documentation.
+For a deeper dive, check out our [Repository Structure Implementation](docs/Repository_Structure_Implementation.md) guide.
 
 ## 🚦 Project Status & Roadmap
 
 ### **Current Phase: Early Research & Proof-of-Concept (v0.1.0)**
 🔹 Core concepts & initial implementation complete
-🔹 Seeking community feedback for improvements
-🔹 Developing integration with CI/CD & key management solutions
+🔹 Standard repository structure implemented with `.repo` directory
+🔹 Tools for managing authorized signers and verifying integrity
+🔹 GitHub Actions workflow for automated integrity verification
 🔹 **Not yet production-ready**
 
-📍 See our [ROADMAP.md](ROADMAP.md) for detailed development plans and our [Development Phases](https://github.com/BlockchainCommons/Community/blob/master/release-path.md) for general approach.
+📍 See our [Implementation Strategy](docs/Implementation_Strategy.md) and [ROADMAP.md](ROADMAP.md) for detailed development plans.
 
 ## ❗ Issue Management
 
@@ -137,8 +158,8 @@ We welcome contributions from developers, researchers, and security experts!
 1. Read our **[Contributing Guide](CONTRIBUTING.md)**
 2. Fork the repository & create a feature branch
 3. Implement your feature or fix
-4. Digitally sign all your commits with an SSH signing key (`gitc commit -S`) and attribute authorship (`git commit --signoff`).
-4. Submit a **Pull Request** for review
+4. Digitally sign all your commits with an SSH signing key (`git commit -S`) and attribute authorship (`git commit --signoff`).
+5. Submit a **Pull Request** for review
 
 All contributors must adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
 
