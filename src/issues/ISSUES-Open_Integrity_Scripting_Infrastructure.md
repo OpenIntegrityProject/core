@@ -1,6 +1,6 @@
 # Open Integrity Project - System-Wide Scripting Infrastructure Issues
-> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md`_
-> - _github: [`scripts/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md)_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md`_
+> - _github: [`core/src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md`](https://github.com/OpenIntegrityProject/core/blob/main/src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md)_
 > - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
@@ -11,11 +11,11 @@ Issues related to system-wide scripting infrastructure for the Open Integrity Pr
 
 ## Code Version and Source
 
-This issues document applies to the Open Integrity Project's scripts collection, **version 0.1.* (2025-03-04)**, which is available at the following sources:
+This issues document applies to the Open Integrity Project's core collection, **version 0.1.* (2025-03-04)**, which is available at the following sources:
 
 > **Origin:**
-> - [Scripts Repository: _github: `https://github.com/OpenIntegrityProject/scripts`_](https://github.com/OpenIntegrityProject/scripts/)
-> - [Readme: _github: `https://github.com/OpenIntegrityProject/scripts/blob/main/README.md`_](https://github.com/OpenIntegrityProject/scripts/blob/main/README.md)
+> - [Core Repository: _github: `https://github.com/OpenIntegrityProject/core`_](https://github.com/OpenIntegrityProject/core/)
+> - [Readme: _github: `https://github.com/OpenIntegrityProject/core/blob/main/README.md`_](https://github.com/OpenIntegrityProject/core/blob/main/README.md)
 
 Each issue is structured with:
 - **Context**: Background information about the issue
@@ -367,7 +367,7 @@ By implementing these actions, we ensure that when a repository transitions to *
   - Usage examples
   - Implement a documentation review process
 **Progress:**
-- 2025-02-26 There are now some recommended function documentation requirements for Zsh Snippet at  [Zsh Core Scripting Requirements and Best Practices: § Script Documentation](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md#zsh-snippet-scripting---script-documentation)
+- 2025-02-26 There are now some recommended function documentation requirements for Zsh Snippet at [Zsh Core Scripting Requirements and Best Practices: § Script Documentation](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-Zsh_Snippet_Script_Best_Practices.md#zsh-snippet-scripting---script-documentation)
 
 
 ## Code Reuse and Modularity
@@ -383,7 +383,7 @@ By implementing these actions, we ensure that when a repository transitions to *
 - Develop a standard error message format
 - Ensure all scripts follow the same error handling pattern
 **Progress:**
-- 2025-02-26: Added recommended error codes, best practices and examples in [Zsh Core Scripting Requirements and Best Practices: §Error Handling Requirment](https://github.com/OpenIntegrityProject/scripts/blob/main/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md#zsh-core-scripting---error-handling-requirements)
+- 2025-02-26: Added recommended error codes, best practices and examples in [Zsh Core Scripting Requirements and Best Practices: §Error Handling Requirment](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-Zsh_Core_Scripting_Best_Practices.md#zsh-core-scripting---error-handling-requirements)
 - 2025-03-04: Added architectural decision: non-zero exit codes should fundamentally represent issues with the first phases of Progressive Trust against the local repository (phases 1-3). Problems in phases 4-5 should be reported as warnings rather than affecting exit codes.
 - 2025-03-04: Implemented this architectural decision in `audit_inception_commit-POC.sh` v0.1.05:
   - Made local verification failures (phases 1-3) return non-zero exit codes
@@ -417,6 +417,41 @@ By implementing these actions, we ensure that when a repository transitions to *
   - Different configuration scenarios
 - Implement performance and security-focused test scenarios
 - Standardize test output formatting
+- Create missing tests for scripts that currently lack them
+
+### ISSUE: Missing Test for get_repo_did.sh (Priority: Medium)
+**Context:** The script get_repo_did.sh doesn't have a test script and test output reference
+**Current:** 
+- Two of the three core scripts have tests: audit_inception_commit-POC.sh and create_inception_commit.sh
+- get_repo_did.sh lacks a test script (TEST-get_repo_did.sh) and test output reference (OUTPUT-TEST-get_repo_did.txt)
+**Impact:** 
+- No automated verification of get_repo_did.sh functionality
+- No regression testing capability for this script
+- Inconsistent testing approach across the codebase
+**Proposed Actions:**
+- Create TEST-get_repo_did.sh following the pattern of existing test scripts
+- Include tests for different repository scenarios
+- Test error cases and edge conditions
+- Generate OUTPUT-TEST-get_repo_did.txt reference file
+- Ensure the test script properly cleans up after itself
+**Status:** OPEN
+
+### ISSUE: Inconsistent Test Output File Naming (Priority: Low)
+**Context:** There are inconsistencies in test output file naming and content
+**Current:** 
+- We have both OUTPUT-TEST-audit_inception_commit-POC.txt and OUTPUT-TEST-audit_inception_commit.txt
+- The test script is named TEST-audit_inception_commit.sh (without "-POC")
+- OUTPUT-TEST-audit_inception_commit-POC.txt contains outdated paths (references to /scripts/ instead of /core/)
+**Impact:** 
+- Confusing naming convention
+- Outdated references in test output files
+- Potential issues when comparing test results
+**Proposed Actions:**
+- Standardize naming convention for all test output files
+- Update all test output files to use current paths
+- Remove redundant or outdated test output files
+- Update CLAUDE.md to clarify the naming convention for test outputs
+**Status:** OPEN
 
 ### ISSUE: Test Scripts Not Cleaning Up Temporary Directories
 **Context:** Test scripts create temporary directories in /tmp/ (such as oi_test_repos_*) that are not always cleaned up after tests complete
