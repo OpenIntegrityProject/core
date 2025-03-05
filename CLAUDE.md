@@ -27,45 +27,29 @@ The Open Integrity Project integrates cryptographic trust mechanisms into Git re
   ```
 
 ## Post-Test Process
-When tests pass successfully, follow these steps:
+When tests pass successfully (after modifying scripts, paths, or test expectations), follow these steps:
 
-1. For non-version updates (bug fixes, minor changes):
+1. For each test script, process it individually:
    ```bash
-   # Update test output reference - both regular and verbose outputs
+   # Run the test and capture both standard and verbose output
    ./src/tests/TEST-script-name.sh > src/tests/OUTPUT-TEST-script-name.txt 2>&1
    ./src/tests/TEST-script-name.sh --verbose >> src/tests/OUTPUT-TEST-script-name.txt 2>&1
    
-   # Commit test script and output reference together
+   # Add and commit both the test script and its output reference together
    git add src/tests/TEST-script-name.sh src/tests/OUTPUT-TEST-script-name.txt
    git commit -S -s -m "Update TEST-script-name.sh and test output reference
    
    - Fix test expectations to match current behavior
-   - Update test output reference to reflect changes
+   - Update path references to work with new directory structure
+   - Capture both regular and verbose test outputs
    
    Tests reflect current functionality accurately."
    ```
 
-2. For structural changes or file path modifications:
-   ```bash
-   # Commit test script changes first
-   git add src/tests/TEST-script-name.sh
-   git commit -S -s -m "Update TEST-script-name.sh path references
-   
-   - Adjust file paths to match new directory structure
-   - Update test expectations for changed behavior"
-   
-   # Update output reference files after script changes are committed
-   ./src/tests/TEST-script-name.sh > src/tests/OUTPUT-TEST-script-name.txt 2>&1
-   ./src/tests/TEST-script-name.sh --verbose >> src/tests/OUTPUT-TEST-script-name.txt 2>&1
-   
-   # Commit output reference separately
-   git add src/tests/OUTPUT-TEST-script-name.txt
-   git commit -S -s -m "Update test output reference for TEST-script-name.sh
-   
-   - Reflect new directory structure in output
-   - Include both regular and verbose test outputs
-   - Match current script behavior"
-   ```
+2. Repeat for each test script individually, rather than committing them all at once
+   - This approach creates a logical connection between test script changes and output
+   - Makes it easier to track which changes affected specific test results
+   - If tests break in the future, the commit history clearly shows the last working state
 
 ## Version Update Process
 When preparing a new version release, follow these steps:
