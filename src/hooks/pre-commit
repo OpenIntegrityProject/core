@@ -1,0 +1,257 @@
+#!/usr/bin/env zsh
+########################################################################
+## Script:      pre-commit
+## Version:     0.1.00 (2025-03-05)
+## Origin:      https://github.com/OpenIntegrityProject/core/blob/main/src/hooks/pre-commit
+## Description: Git pre-commit hook for Open Integrity repositories that enforces:
+##              1. SSH signing is properly configured
+##              2. Commits are properly signed with a valid key
+##              3. Signing key is in the allowed signers list
+## License:     BSD-2-Clause-Patent (https://spdx.org/licenses/BSD-2-Clause-Patent.html)
+## Copyright:   (c) 2025 Blockchain Commons LLC (https://www.BlockchainCommons.com)
+## Attribution: Authored by Christopher Allen <ChristopherA@LifeWithAlacrity.com>
+## Usage:       Install in .repo/hooks/ and configure Git to use it with:
+##              git config --local core.hooksPath .repo/hooks
+## Security:    This hook is critical for maintaining cryptographic integrity
+##              of the repository by preventing unsigned commits.
+## Note:        This script should be copied to .repo/hooks/pre-commit during
+##              repository initialization by create_repo_structure.sh.
+########################################################################
+
+# Reset the shell environment to a known state
+emulate -LR zsh
+
+# Safe shell scripting options
+setopt errexit nounset pipefail localoptions warncreateglobal
+
+# Script constants
+typeset -r Script_Name=$(basename "$0")
+typeset -r Script_Version="0.1.00"
+
+# Exit status codes
+typeset -r EXIT_SUCCESS=0
+typeset -r EXIT_ERROR=1
+
+# Color codes for output
+typeset RED="\033[1;31m"
+typeset GREEN="\033[1;32m"
+typeset YELLOW="\033[1;33m"
+typeset BLUE="\033[1;34m"
+typeset RESET="\033[0m"
+
+# Functions for colored output
+function print_error() {
+    echo -e "${RED}❌ ERROR:${RESET} $1" >&2
+}
+
+function print_warning() {
+    echo -e "${YELLOW}⚠️  WARNING:${RESET} $1" >&2
+}
+
+function print_success() {
+    echo -e "${GREEN}✅ SUCCESS:${RESET} $1"
+}
+
+function print_info() {
+    echo -e "${BLUE}ℹ️  INFO:${RESET} $1"
+}
+
+# Check if Git is properly configured for SSH signing
+function check_signing_configuration() {
+    # Check for SSH signing format
+    if [[ "$(git config --get gpg.format)" != "ssh" ]]; then
+        print_error "Git is not configured for SSH signing"
+        print_info "Run: git config --local gpg.format ssh"
+        return $EXIT_ERROR
+    fi
+    
+    # Check for signing key
+    typeset SIGNING_KEY=$(git config --get user.signingkey)
+    if [[ -z "$SIGNING_KEY" ]]; then
+        print_error "No signing key configured"
+        print_info "Run: git config --local user.signingkey /path/to/your/ssh/key"
+        return $EXIT_ERROR
+    fi
+    
+    # Check if signing key exists and is readable
+    if [[ ! -r "$SIGNING_KEY" ]]; then
+        print_error "Signing key not found or not readable: $SIGNING_KEY"
+        return $EXIT_ERROR
+    fi
+    
+    # Check for commit signing
+    if [[ "$(git config --get commit.gpgsign)" != "true" ]]; then
+        print_error "Commit signing is not enabled"
+        print_info "Run: git config --local commit.gpgsign true"
+        return $EXIT_ERROR
+    fi
+    
+    return $EXIT_SUCCESS
+}
+
+# Check if allowed signers file is configured and valid
+function check_allowed_signers() {
+    # Check for allowed signers file configuration
+    typeset ALLOWED_SIGNERS_FILE=$(git config --get gpg.ssh.allowedSignersFile)
+    if [[ -z "$ALLOWED_SIGNERS_FILE" ]]; then
+        print_error "gpg.ssh.allowedSignersFile is not configured"
+        print_info "Run: git config --local gpg.ssh.allowedSignersFile .repo/config/verification/allowed_commit_signers"
+        return $EXIT_ERROR
+    fi
+    
+    # Convert to absolute path if relative
+    if [[ ! "$ALLOWED_SIGNERS_FILE" == /* ]]; then
+        ALLOWED_SIGNERS_FILE="$(git rev-parse --show-toplevel)/$ALLOWED_SIGNERS_FILE"
+    fi
+    
+    # Check if allowed signers file exists
+    if [[ ! -f "$ALLOWED_SIGNERS_FILE" ]]; then
+        print_error "Allowed signers file not found: $ALLOWED_SIGNERS_FILE"
+        print_info "Use manage_allowed_signers.sh to set up your allowed signers"
+        return $EXIT_ERROR
+    fi
+    
+    # Check if allowed signers file is readable
+    if [[ ! -r "$ALLOWED_SIGNERS_FILE" ]]; then
+        print_error "Allowed signers file not readable: $ALLOWED_SIGNERS_FILE"
+        return $EXIT_ERROR
+    fi
+    
+    # Check if allowed signers file contains entries
+    if ! grep -v "^#" "$ALLOWED_SIGNERS_FILE" | grep -q "@"; then
+        print_warning "Allowed signers file contains no valid entries"
+        print_info "Use manage_allowed_signers.sh to add signers"
+        # Don't fail for this, just warn
+    fi
+    
+    return $EXIT_SUCCESS
+}
+
+# Check if the current signing key is in the allowed signers list
+function check_signing_key_authorized() {
+    typeset SIGNING_KEY=$(git config --get user.signingkey)
+    typeset ALLOWED_SIGNERS_FILE=$(git config --get gpg.ssh.allowedSignersFile)
+    
+    # Convert to absolute path if relative
+    if [[ ! "$ALLOWED_SIGNERS_FILE" == /* ]]; then
+        ALLOWED_SIGNERS_FILE="$(git rev-parse --show-toplevel)/$ALLOWED_SIGNERS_FILE"
+    fi
+    
+    # Get the public key fingerprint
+    typeset KEY_FINGERPRINT=$(ssh-keygen -l -f "$SIGNING_KEY" | awk '{print $2}')
+    
+    # Check if this is the repository's inception commit
+    typeset -i COMMIT_COUNT=$(git rev-list --all --count 2>/dev/null || echo "0")
+    
+    if (( COMMIT_COUNT == 0 )); then
+        print_info "Creating inception commit - key authorization check bypassed"
+        return $EXIT_SUCCESS
+    fi
+    
+    # For repositories with existing commits, verify key is in allowed signers
+    if (( COMMIT_COUNT > 0 )); then
+        # Extract key content from the allowed signers file
+        typeset ALLOWED_KEYS=$(grep -v "^#" "$ALLOWED_SIGNERS_FILE" | awk '{print $4}')
+        
+        # Check if key is authorized
+        typeset KEY_AUTHORIZED=$EXIT_ERROR
+        for KEY in $ALLOWED_KEYS; do
+            # Create temporary file with key to calculate fingerprint
+            typeset TEMP_KEY=$(mktemp)
+            echo "ssh-ed25519 $KEY" > "$TEMP_KEY"
+            typeset CURRENT_FINGERPRINT=$(ssh-keygen -l -f "$TEMP_KEY" 2>/dev/null | awk '{print $2}')
+            rm "$TEMP_KEY"
+            
+            if [[ "$CURRENT_FINGERPRINT" == "$KEY_FINGERPRINT" ]]; then
+                KEY_AUTHORIZED=$EXIT_SUCCESS
+                break
+            fi
+        done
+        
+        if [[ $KEY_AUTHORIZED -ne $EXIT_SUCCESS ]]; then
+            print_error "Signing key is not in the allowed signers file"
+            print_info "Current key fingerprint: $KEY_FINGERPRINT"
+            print_info "Use manage_allowed_signers.sh to add your key to the allowed signers"
+            return $EXIT_ERROR
+        fi
+    fi
+    
+    return $EXIT_SUCCESS
+}
+
+# Check for a proper commit message format
+function check_commit_message() {
+    # Get the commit message from the file
+    typeset COMMIT_MSG_FILE="$1"
+    
+    if [[ ! -f "$COMMIT_MSG_FILE" ]]; then
+        print_error "Commit message file not found"
+        return $EXIT_ERROR
+    fi
+    
+    # Read the commit message
+    typeset COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+    
+    # Check minimum length
+    if [[ ${#COMMIT_MSG} -lt 8 ]]; then
+        print_error "Commit message is too short (minimum 8 characters)"
+        return $EXIT_ERROR
+    fi
+    
+    # Check for Signed-off-by line (DCO)
+    if ! grep -q "Signed-off-by:" "$COMMIT_MSG_FILE"; then
+        print_warning "Commit message does not contain a Signed-off-by line"
+        print_info "Consider using 'git commit --signoff' for Developer Certificate of Origin"
+        # Don't fail for this, just warn
+    fi
+    
+    return $EXIT_SUCCESS
+}
+
+# Main function
+function main() {
+    print_info "Running Open Integrity pre-commit hook"
+    
+    # Check if hook is being skipped
+    if [[ -n "${SKIP_OPEN_INTEGRITY_HOOKS:-}" ]]; then
+        print_warning "Skipping Open Integrity hooks because SKIP_OPEN_INTEGRITY_HOOKS is set"
+        return $EXIT_SUCCESS
+    fi
+    
+    # Check if this is an amend operation
+    typeset IS_AMEND=$([[ -n "$(ps -ocommand= -p $PPID | grep -e '--amend')" ]] && echo "true" || echo "false")
+    
+    # Check signing configuration
+    if ! check_signing_configuration; then
+        print_error "SSH signing configuration check failed"
+        return $EXIT_ERROR
+    fi
+    
+    # Check allowed signers
+    if ! check_allowed_signers; then
+        print_error "Allowed signers configuration check failed"
+        return $EXIT_ERROR
+    fi
+    
+    # Check signing key authorization
+    if ! check_signing_key_authorized; then
+        print_error "Signing key authorization check failed"
+        return $EXIT_ERROR
+    fi
+    
+    # Check commit message
+    typeset COMMIT_MSG_FILE="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
+    if [[ -f "$COMMIT_MSG_FILE" ]]; then
+        if ! check_commit_message "$COMMIT_MSG_FILE"; then
+            print_error "Commit message check failed"
+            return $EXIT_ERROR
+        fi
+    fi
+    
+    print_success "All Open Integrity checks passed"
+    return $EXIT_SUCCESS
+}
+
+# Execute main function
+main
+exit $?
