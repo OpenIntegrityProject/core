@@ -418,6 +418,22 @@ By implementing these actions, we ensure that when a repository transitions to *
 - Implement performance and security-focused test scenarios
 - Standardize test output formatting
 
+### ISSUE: Test Scripts Not Cleaning Up Temporary Directories
+**Context:** Test scripts create temporary directories in /tmp/ (such as oi_test_repos_*) that are not always cleaned up after tests complete
+**Current:** The test scripts accumulate tmp/ directories over time, causing disk space usage to grow
+**Impact:** 
+- Consumes unnecessary disk space
+- Makes test environments less isolated
+- May lead to confusion when analyzing test outputs
+- Reduces the cleanliness of the testing process
+**Proposed Actions:**
+- Modify test cleanup functions to ensure all temporary directories are properly removed
+- Add a proper EXIT trap to ensure cleanup even when tests fail or are interrupted
+- Implement a periodic cleanup routine that removes old test directories
+- Add automated cleanup checks to CI/CD pipelines
+- Update test documentation to include information about cleanup expectations
+**Status:** OPEN
+
 ### ISSUE: Inconsistent z_Output() Implementation and Documentation
 **Context:** Multiple implementations of `z_Output()` across different scripts with varying behaviors and features. Current best implementations are split between:
 - `z_min_frame.sh` (current best minimal implementation)
