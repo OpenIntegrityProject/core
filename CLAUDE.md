@@ -291,6 +291,52 @@ When creating commits:
 - Script template: [src/snippet_template.sh](src/snippet_template.sh)
 - Framework: `z_min_frame.sh` or `z_frame.sh`
 
+## Work Stream Management Process
+
+The Open Integrity Project uses a structured approach to manage parallel development across multiple branches:
+
+1. **Work Stream Tasks Document**:
+   - [WORK_STREAM_TASKS.md](WORK_STREAM_TASKS.md) in the repository root tracks all branches
+   - The document in the `main` branch is the single source of truth
+   - Each task is tagged with its branch name: `[branch-name]`
+   - Unassigned tasks are tagged with `[unassigned]`
+
+2. **Branch-Specific Work**:
+   - Each feature branch owns specific sections of the document
+   - Tasks are organized by development stages (Requirements, Implementation, Testing, etc.)
+   - Individual tasks can be marked with priority levels (High, Medium, Low)
+   - Completed tasks are moved to the "Completed in this Branch" section
+   - Only update your branch's section, preserving other sections
+
+3. **Status Update Process**:
+   - When making significant progress, update the document with:
+     - Task status (completed/in-progress)
+     - Completion dates for finished items
+     - Any new subtasks discovered during implementation
+   - Create a small PR just for the status update
+   - Keep documentation changes separate from code changes
+
+4. **Branch Creation Process**:
+   - When creating a new branch, add your section to WORK_STREAM_TASKS.md
+   - Submit a small PR to update the main branch with your new section
+   - Follow the existing format with branch name, description, and priority levels
+   - Tag all tasks with your branch name: `[your-branch-name]`
+
+5. **Pre-Commit Review Process**:
+   - Before staging any files, conduct a thorough review of all changes
+   - Use `git diff <file>` to examine each file's changes individually
+   - Verify that changes align with requirements and branch goals
+   - Check for consistency across all modified files
+   - **CRITICAL**: The human author must personally review all changes before staging
+     - AI tools like Claude may assist with changes, but cannot perform the final review
+     - Only the human author should add their Signed-off-by certification
+     - Only the human author should sign commits with their SSH key
+
+6. **Branch Completion**:
+   - Final PR from feature branch to main should include updated task status
+   - All tasks should be marked complete with dates or moved to future work
+   - Include a summary of accomplishments in the PR description
+
 ## Guidelines for Claude When Working on Issues
 
 When working on fixing issues or implementing new features:
@@ -306,7 +352,7 @@ When working on fixing issues or implementing new features:
    - Create a plan before making any changes
    - Make changes one file at a time with individual commits
    - Test changes immediately after making them
-   - Document what was done in OPEN_TASKS.md and relevant ISSUES files
+   - Document what was done in WORK_STREAM_TASKS.md and relevant ISSUES files
 
 3. **Ensure thorough testing:**
    - Run the specific test for any script you modify
@@ -314,7 +360,22 @@ When working on fixing issues or implementing new features:
    - Update test output files if changes were intended to modify behavior
    - Verify script functionality works as expected with manual testing
 
-4. **When in doubt, ask for clarification:**
+4. **Follow the work stream management process:**
+   - Update WORK_STREAM_TASKS.md when starting work on a new branch
+   - Tag tasks with branch name: `[branch-name]`
+   - Keep status updated with small, focused PRs to the main branch
+   - Mark completed tasks with dates: `(YYYY-MM-DD)`
+   - Only update your branch's section of the document
+   
+5. **Follow the pre-commit review process:**
+   - Before staging any file, thoroughly review all changes
+   - Use `git diff <file>` to examine each file individually
+   - Verify consistency across all modified files
+   - CRITICAL: The human author must personally review all changes before staging
+   - Only the human author should add their Signed-off-by certification
+   - Only the human author should sign commits with their SSH key
+
+6. **When in doubt, ask for clarification:**
    - Be explicit about what's unclear rather than making assumptions
    - Provide options with pros and cons when multiple approaches exist
    - Reference specific lines or files when asking questions
