@@ -219,6 +219,12 @@ When creating commits:
 
 5. **Create separate commits for each file** when implementing architectural changes or addressing issues that span multiple files.
 
+6. **Stage files individually, never in batches:**
+   - Always use `git add <single-file>` for each file separately
+   - Never use `git add` with multiple files or wildcards
+   - The only exception is for test scripts and their output files, which should be committed together
+   - Example: `git add src/tests/TEST-script-name.sh src/tests/OUTPUT-TEST-script-name.txt`
+
 ## Main Scripts
 
 ### 🔍 `src/audit_inception_commit-POC.sh`
