@@ -1,7 +1,7 @@
 # Requirements for Zsh Snippet "Create Inception Commit"
-> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/snippets/requirements/REQUIREMENTS-create_inception_commit.md`_
-> - _github: [`scripts/snippets/requirements/REQUIREMENTS-create_inception_commit.md`](https://github.com/OpenIntegrityProject/scripts/blob/main/snippets/requirements/REQUIREMENTS-create_inception_commit.md)_
-> - _Updated: 2025-02-28 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/src/requirements/REQUIREMENTS-create_inception_commit.md`_
+> - _github: [`core/src/requirements/REQUIREMENTS-create_inception_commit.md`](https://github.com/OpenIntegrityProject/core/blob/main/src/requirements/REQUIREMENTS-create_inception_commit.md)_
+> - _Updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 [![License](https://img.shields.io/badge/License-BSD_2--Clause--Patent-blue.svg)](https://spdx.org/licenses/BSD-2-Clause-Patent.html)  
 [![Project Status: Active](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)  
@@ -9,9 +9,11 @@
 
 ## Code Version and Source
 
-This requirements document applies to version **0.1.02 (2025-02-28)** of the code, which is available at the following source:
+This requirements document applies to version **0.1.03 (2025-03-04)** of the code, which is available at the following source:
 
-**Origin:** [GitHub: `create_inception_commit.sh`](https://github.com/OpenIntegrityProject/scripts/blob/main/snippets/create_inception_commit.sh) and [GitHub: `TEST-create_inception_commit.sh`](https://github.com/OpenIntegrityProject/scripts/blob/main/snippets/create_inception_commit.sh).
+**Origin:** 
+- [GitHub: `create_inception_commit.sh`](https://github.com/OpenIntegrityProject/core/blob/main/src/create_inception_commit.sh)
+- [GitHub: `TEST-create_inception_commit.sh`](https://github.com/OpenIntegrityProject/core/blob/main/src/tests/TEST-create_inception_commit.sh)
 
 Any updates or modifications to the code should reference this version to ensure consistency with the outlined requirements.
 
