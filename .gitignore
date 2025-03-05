@@ -80,3 +80,8 @@ zsdoc/data
 !/tests/_output/.gitkeep
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,zsh,jekyll
+
+# Project specific ignores
+untracked/
+sandbox/
+tmp/
