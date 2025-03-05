@@ -42,7 +42,7 @@ typeset -r Target_Script="${Repo_Root}/audit_inception_commit-POC.sh"
 typeset -r Sandbox_Dir="${Repo_Root}/../sandbox"
 typeset Valid_Repo="${Sandbox_Dir}/valid_repo"
 typeset Invalid_Repo="${Sandbox_Dir}/invalid_repo"
-typeset -r Snippet_Path="${Repo_Root}/snippets/create_inception_commit.sh"
+typeset -r Snippet_Path="${Repo_Root}/create_inception_commit.sh"
 typeset -i Verbose_Mode=$FALSE
 
 # GitHub-related variables
@@ -433,10 +433,10 @@ test_Error_Cases() {
         1 \
         "Invalid directory"
     
-    # Based on the output, non-repository directory returns 1
+    # Update: non-repository directory now returns 0 (change in v0.1.05)
     z_Run_Test "Non-repository directory" \
         "\"$Target_Script\" -C \"$Invalid_Repo\" 2>&1" \
-        1 \
+        0 \
         "Repository Structure:"
     
     return $Exit_Status_Success
