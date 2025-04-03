@@ -8,6 +8,6 @@ This directory contains documentation for the Open Integrity Core implementation
 ## Contents
 
 - [Problem Statement](Open_Integrity_Problem_Statement.md) - Overview of the challenges and solutions
-- [CLI One-Liners](Open_Integrity-CLI_One_Liners.md) - Practical command line snippets
+- [Script Snippets](Open_Integrity_Script_Snippets.md) - Practical command line snippets
 - [Repository Structure](Open_Integrity_Repo_Directory_Structure.md) - Repository organization reference
 - [Enforcing Signed Commits](Enforcing_Signed_Commits_And_PRs_GitHub.md) - Guide to enforcing commit signatures

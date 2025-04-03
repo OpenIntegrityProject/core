@@ -48,7 +48,7 @@ This repository contains the core implementation and documentation for the Open 
 ### 📁 Core Documentation
 
 - 📜 [Problem Statement](docs/Open_Integrity_Problem_Statement.md) – Challenges & solutions for cryptographic roots of trust using Git repositories
-- 📟 [CLI One-Liners](docs/Open_Integrity-CLI_One_Liners.md) – Practical command-line shortcuts for Open Integrity
+- 📟 [Script Snippets](docs/Open_Integrity_Script_Snippets.md) – Practical command-line shortcuts for Open Integrity
 - 📂 [Repository Structure](docs/Open_Integrity_Repo_Directory_Structure.md) – Open Integrity repository structure reference
 - 🛣️ [Project Roadmap](ROADMAP.md) – Development milestones and plans
 - 🤝 [Contributing Guidelines](CONTRIBUTING.md) – How to contribute
