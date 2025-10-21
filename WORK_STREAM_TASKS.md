@@ -192,6 +192,161 @@ Implementation of enhanced Git inception repository script with improved error h
   - [x] Improved test infrastructure with better ANSI handling
   - [x] Added comprehensive documentation
 
+## Branch: [feature/work-stream-integrity]
+
+Implementation of cryptographically verifiable work stream management with structured data formats and automated integrity validation.
+
+**Related Issues:**
+- [ISSUES-Open_Integrity_Scripting_Infrastructure.md: Automated Work Stream Workflow Enforcement](src/issues/ISSUES-Open_Integrity_Scripting_Infrastructure.md)
+  > Addresses the need for platform-agnostic, cryptographically verifiable work stream tracking and PR dependency validation.
+
+**Related Requirements:**
+- Work stream management must be platform-independent (not tied to GitHub)
+- Leverage cryptographic verification over platform trust
+- Support automated validation without external dependencies
+- Enable structured queries and programmatic enforcement
+
+**Key Features to Explore:**
+1. **Structured Data Format**: TOML/JSON/YAML for machine-readable work streams
+2. **Cryptographic Verification**: Sign work stream data, verify PR dependencies
+3. **Test Contract PR**: Intermediate PR defining function signatures/interfaces before implementation
+4. **Automated Validation**: Platform-agnostic scripts for workflow enforcement
+5. **TDD Integration**: Track RED-GREEN-REFACTOR cycles in work stream data
+6. **Format Interoperability**: Universal conversion between JSON/YAML/TOML formats
+7. **Configurable Workflows**: Customizable work stream schemas for different project types
+
+**Related Systems & Prior Art:**
+- **Kiro Specs**: Spec-driven development with Requirements→Design→Implementation phases, includes TDD (RED-GREEN-REFACTOR) tracking in tasks.md
+- **GitHub spec-kit**: Spec-first development with branch-per-spec, living artifact approach
+- **Tessl Framework**: Specs as primary artifact, structured testable language
+- **ADR (Architecture Decision Records)**: Documented architectural decisions with context and consequences
+- **Sigstore/Gitsign**: Keyless commit signing with OIDC for CI/CD traceability
+- **Living Documentation**: Documentation-as-code extracted from BDD tests, ADRs, contract tests, YAML specs
+- **Nickel Language**: Configuration language with runtime contract validation, record contracts for schema enforcement, lazy evaluation, LSP integration
+
+### Stage 1: Requirements & Design
+- [ ] **Define structured work stream format** [feature/work-stream-integrity]
+  - [ ] Evaluate Nickel for runtime contract validation of work stream schemas
+  - [ ] Research format conversion tools (yj, jty-converter, prodevtool, Nickel export)
+  - [ ] Choose data format (Nickel vs TOML vs JSON vs YAML) based on validation capabilities
+  - [ ] Design Nickel record contracts for branches, stages, tasks, PRs, dependencies
+  - [ ] Add TDD phase tracking (red/green/refactor) to schema with contracts
+  - [ ] Document cryptographic verification model for work stream data
+  - [ ] Analyze prior art: Kiro Specs, spec-kit, Tessl, ADRs, Nickel contracts
+  - [ ] Create REQUIREMENTS-verified_work_streams.md with complete specification
+
+### Stage 2: PR Dependency Verification
+- [ ] **Design cryptographic PR dependency model** [feature/work-stream-integrity]
+  - [ ] Define how status PRs cryptographically reference code PRs
+  - [ ] Specify git commit hash references for PR dependencies
+  - [ ] Document verification process for PR ordering and completeness
+  - [ ] Explore test contract PR model (function signatures before implementation)
+
+### Stage 3: Test Contract PR Model (Optional/Exploratory)
+- [ ] **Evaluate intermediate test/contract PR approach** [feature/work-stream-integrity]
+  - [ ] Research benefits of defining interfaces before implementation
+  - [ ] Design format for function signature contracts
+  - [ ] Determine if contracts should be separate PR or part of status PR
+  - [ ] Document pros/cons and make recommendation
+  - [ ] Example: Status PR → Test Contract PR (function sigs) → Implementation PR
+
+### Stage 4: Format Interoperability & Conversion Tools
+- [ ] **Implement universal format conversion** [feature/work-stream-integrity]
+  - [ ] Evaluate conversion tools: yj (CLI), jty-converter (Rust), prodevtool (web)
+  - [ ] Choose format conversion strategy (single tool vs multi-tool)
+  - [ ] Implement bidirectional conversion: TOML ↔ JSON ↔ YAML
+  - [ ] Preserve semantic meaning across format conversions
+  - [ ] Create parser for structured work stream data (jq/yq/toml-cli)
+  - [ ] Implement generator: structured data → WORK_STREAM_TASKS.md
+  - [ ] Add validation script for schema compliance
+  - [ ] Create src/generate_work_stream_docs.sh
+  - [ ] Create src/convert_work_stream_format.sh
+
+### Stage 5: TDD Integration & Workflow Validation
+- [ ] **Integrate TDD tracking into work streams** [feature/work-stream-integrity]
+  - [ ] Add RED-GREEN-REFACTOR phase tracking to task schema
+  - [ ] Link test files to implementation files in structured data
+  - [ ] Validate that tests are written before implementation (RED phase exists)
+  - [ ] Track test pass/fail status cryptographically via commit hashes
+  - [ ] Document TDD workflow integration inspired by Kiro Specs
+
+### Stage 6: Validation Scripts
+- [ ] **Build platform-agnostic validation** [feature/work-stream-integrity]
+  - [ ] Implement src/validate_work_stream.sh for workflow compliance
+  - [ ] Add branch naming convention checks
+  - [ ] Verify task tagging matches branch names
+  - [ ] Check PR dependency ordering (status before code)
+  - [ ] Validate cryptographic signatures on work stream data
+  - [ ] Verify TDD phase progression (red → green → refactor)
+
+### Stage 7: Git Hook Integration
+- [ ] **Create pre-commit and pre-push hooks** [feature/work-stream-integrity]
+  - [ ] Add work stream data validation to pre-commit
+  - [ ] Verify branch tags in commit messages
+  - [ ] Check WORK_STREAM_TASKS.md consistency in pre-push
+  - [ ] Document hook installation and configuration
+
+### Stage 8: Configurable Workflow Schemas
+- [ ] **Design customizable workflow configurations** [feature/work-stream-integrity]
+  - [ ] Define workflow schema templates for different project types
+  - [ ] Support custom phases beyond Requirements→Design→Implementation
+  - [ ] Allow configurable validation rules per workflow type
+  - [ ] Document workflow customization options
+  - [ ] Create example schemas: TDD-focused, ADR-based, spec-first
+
+### Stage 9: Documentation & Migration
+- [ ] **Document system and migrate existing data** [feature/work-stream-integrity]
+  - [ ] Create comprehensive ISSUES-verified_work_streams.md
+  - [ ] Write migration guide for existing work streams
+  - [ ] Update CLAUDE.md with new workflow documentation
+  - [ ] Convert current WORK_STREAM_TASKS.md to structured format
+  - [ ] Add examples and best practices guide
+  - [ ] Document integration with Kiro Specs, spec-kit, Tessl concepts
+  - [ ] Add format conversion workflow documentation
+
+### Open Questions to Resolve
+- [ ] **Data format selection** [feature/work-stream-integrity]
+  - TOML: Human-readable, good for config, native Rust support
+  - JSON: Ubiquitous tooling (jq), but less readable
+  - YAML: Most readable, but ambiguous spec
+  - **Nickel**: Configuration language with runtime contract validation, lazy evaluation, LSP integration
+    - Built-in schema enforcement via record contracts
+    - Exports to JSON/YAML for interoperability
+    - Design-by-contract approach for validation
+    - Lazy evaluation preserves performance
+    - Tweag-developed, Nix ecosystem integration
+  - Decision criteria: Tooling availability, readability, unambiguous parsing, runtime validation
+  - Format conversion tools available: yj (preserves map order), jty-converter (Rust), prodevtool (web)
+  - **Proposal**: Nickel as source format (for validation), export to JSON/YAML/TOML for compatibility
+
+- [ ] **Test contract PR workflow** [feature/work-stream-integrity]
+  - Is an intermediate PR with function signatures valuable?
+  - Should it be part of status PR or separate?
+  - How does it integrate with cryptographic verification?
+  - Does it add too much overhead for simple changes?
+  - Inspired by: Kiro Specs (tasks.md), spec-kit (spec-first), Tessl (specs as primary artifact)
+
+- [ ] **TDD integration approach** [feature/work-stream-integrity]
+  - How to cryptographically verify RED-GREEN-REFACTOR progression?
+  - Should TDD phases be mandatory or optional per task?
+  - Can we use commit hashes to prove test-first development?
+  - Integration with existing regression test infrastructure?
+  - Inspired by: Kiro Specs' TDD tracking in tasks.md
+
+- [ ] **Cryptographic verification scope** [feature/work-stream-integrity]
+  - Sign entire work stream file or individual entries?
+  - How to verify PR dependency chains cryptographically?
+  - Integration with existing git signature requirements?
+  - Can we cryptographically prove status PR preceded code PR?
+  - Inspiration: Sigstore/Gitsign for CI/CD traceability, git commit hash chains
+
+- [ ] **Configurable workflow schema design** [feature/work-stream-integrity]
+  - How to balance flexibility with enforceability?
+  - Default schema vs custom schemas for different project types?
+  - Validation rule customization per workflow type?
+  - Schema versioning and migration strategy?
+  - Prior art: ADR templates, living documentation patterns
+
 ## Unassigned to Branch
 
 ### Testing Infrastructure
