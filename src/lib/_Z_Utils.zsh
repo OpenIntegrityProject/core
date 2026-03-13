@@ -1446,8 +1446,12 @@ function z_Setup_Environment() {
     
     # Set up terminal capabilities if not already set
     function setup_Terminal_Capabilities() {
-        # Only initialize if they aren't already defined
-        if [[ -z "$Term_Reset" ]]; then
+        # Only initialize if they aren't already declared.
+        # Check variable existence, not emptiness: in non-tty environments,
+        # Term_Reset is set to empty string at line ~302 but is still readonly.
+        # Using -z would see "empty" and try to re-set it, crashing with
+        # "read-only variable".
+        if ! typeset -p Term_Reset >/dev/null 2>&1; then
             # Initialize terminal capabilities
             typeset -g Term_Reset="$(tput sgr0 2>/dev/null || echo '')"
             typeset -g Term_Bold="$(tput bold 2>/dev/null || echo '')"
