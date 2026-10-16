@@ -171,8 +171,8 @@ Scripts include **automated regression tests**. Run them as follows:
 - ⭐ **Star** our repositories to show support
 - 📢 **Sharing** your discoveries with your network
 - 💬 Ask a question or engage in discussions in our [**Community Discussions**](https://github.com/orgs/OpenIntegrityProject/discussions)
-- ✍️ Report an issue in our [**Initial Issue Tracker**](https://github.com/OpenIntegrityProject/community/issues)
-- 🔎 Find [**Good First Issues**](https://github.com/OpenIntegrityProject/community/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to get started
+- ✍️ Report an issue in our [**Initial Issue Tracker**](https://github.com/OpenIntegrityProject/core/issues)
+- 🔎 Find [**Good First Issues**](https://github.com/OpenIntegrityProject/core/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to get started
 - 💰 Become a financial patron to our host [Blockchain Commons via GitHub Sponsors](https://github.com/sponsors/BlockchainCommons)
 
 For commercial support, visit: **[Blockchain Commons Support](https://www.blockchaincommons.com/support/)**.
@@ -191,7 +191,7 @@ All contributors must adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## ❗ Issue Management
 
-We recommend starting general issues in GitHub's 💬 [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions) to encourage open dialogue before they are formally moved to our ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/community/issues). 
+We recommend starting general issues in GitHub's 💬 [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions) to encourage open dialogue before they are formally moved to our ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/core/issues). 
 
 However, in alignment with our commitment to decentralized repository management, we plan to develop GitHub Action scripts that will automatically populate `/issues/` directories within each repository. This will allow issues to be mirrored across multiple Git hosting platforms, ensuring greater resilience and accessibility beyond GitHub.
 
@@ -217,7 +217,7 @@ Ensuring security is a top priority for the Open Integrity Project. If you disco
 
 - **Security Issues**: [team@BlockchainCommons.com](mailto:team@BlockchainCommons.com)
 - **General Questions**: [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions)
-- **Bug Reports**: [Initial Issue Tracker](https://github.com/OpenIntegrityProject/community/issues)
+- **Bug Reports**: [Initial Issue Tracker](https://github.com/OpenIntegrityProject/core/issues)
 
 ## 📜 Copyright & License
 

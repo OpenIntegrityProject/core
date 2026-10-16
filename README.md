@@ -56,9 +56,9 @@ This repository contains the core implementation and documentation for the Open 
 
 ### 📌 Project Resources
 
-- 📖 [Documentation Website](https://OpenIntegrityProject.info)
+- 📖 [Documentation Website](https://developer.blockchaincommons.com/open-integrity/)
 - 💬 [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions)
-- ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/community/issues)
+- ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/core/issues)
 - 🧪 [Open Integrity Forge](https://github.com/OpenIntegrityProject/open-integrity-forge) – Proof-of-concept Git platform for agents on Cloudflare, with a [live demo](https://forgedemo.gordianstack.com) and [video](https://www.youtube.com/watch?v=_KdOGtynXig)
 
 ### 📝 Planned Resources
@@ -118,7 +118,7 @@ We track issues in two complementary ways:
 
 1. **Repository-specific issues** are tracked directly in the [src/issues/](src/issues/) directory with detailed context and proposed solutions.
 
-2. **General project issues** start in GitHub's 💬 [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions) to encourage open dialogue before they are moved to our ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/community/issues).
+2. **General project issues** start in GitHub's 💬 [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions) to encourage open dialogue before they are moved to our ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/core/issues).
 
 This dual approach aligns with our commitment to decentralized repository management, allowing issues to be tracked both in version control and across multiple Git hosting platforms, ensuring greater resilience and accessibility beyond any single platform.
 
@@ -127,8 +127,8 @@ This dual approach aligns with our commitment to decentralized repository manage
 - ⭐ **Star** our repositories to show support
 - 📢 **Sharing** your discoveries with your network
 - 💬 Ask a question or engage in discussions in our [**Community Discussions**](https://github.com/orgs/OpenIntegrityProject/discussions)
-- ✍️ Report an issue in our [**Initial Issue Tracker**](https://github.com/OpenIntegrityProject/community/issues)
-- 🔎 Find [**Good First Issues**](https://github.com/OpenIntegrityProject/community/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to get started
+- ✍️ Report an issue in our [**Initial Issue Tracker**](https://github.com/OpenIntegrityProject/core/issues)
+- 🔎 Find [**Good First Issues**](https://github.com/OpenIntegrityProject/core/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) to get started
 - 💰 Become a financial patron to our host [Blockchain Commons via GitHub Sponsors](https://github.com/sponsors/BlockchainCommons)
 
 For commercial support, visit: **[Blockchain Commons Support](https://www.blockchaincommons.com/support/)**.
@@ -167,7 +167,7 @@ Ensuring security is a top priority for the Open Integrity Project. If you disco
 
 - **Security Issues**: [team@BlockchainCommons.com](mailto:team@BlockchainCommons.com)
 - **General Questions**: [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions)
-- **Bug Reports**: [Initial Issue Tracker](https://github.com/OpenIntegrityProject/community/issues)
+- **Bug Reports**: [Initial Issue Tracker](https://github.com/OpenIntegrityProject/core/issues)
 
 ## 📜 Copyright & License
 
