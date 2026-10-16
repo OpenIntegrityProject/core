@@ -1,7 +1,7 @@
 # Open Integrity Project
 > - _did: `did:repo:69c8659959f1a6aa281bdc1b8653b381e741b3f6/blob/main/README.md`_
 > - _github: `https://github.com/OpenIntegrityProject/core/blob/main/README.md`_
-> - _updated: 2025-03-04 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
+> - _updated: 2026-10-16 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
 ## 📖 Introduction
 
@@ -59,6 +59,7 @@ This repository contains the core implementation and documentation for the Open 
 - 📖 [Documentation Website](https://OpenIntegrityProject.info)
 - 💬 [Community Discussions](https://github.com/orgs/OpenIntegrityProject/discussions)
 - ❗ [Initial Issue Tracker](https://github.com/OpenIntegrityProject/community/issues)
+- 🧪 [Open Integrity Forge](https://github.com/OpenIntegrityProject/open-integrity-forge) – Proof-of-concept Git platform for agents on Cloudflare, with a [live demo](https://forgedemo.gordianstack.com) and [video](https://www.youtube.com/watch?v=_KdOGtynXig)
 
 ### 📝 Planned Resources
 
@@ -106,6 +107,8 @@ For a deeper dive, check out our [Problem Statement](docs/Open_Integrity_Problem
 🔹 Seeking community feedback for improvements
 🔹 Developing integration with CI/CD & key management solutions
 🔹 **Not yet production-ready**
+
+🧪 [Open Integrity Forge](https://github.com/OpenIntegrityProject/open-integrity-forge) (October 2026) demonstrates these ideas on a hosted Git platform, with agents signing in their own forks and people approving merges with passkeys. It is a proof of concept: it keeps its rules in a single `policy.json` rather than the signer files these scripts use, and how the two converge is not yet decided.
 
 📍 See our [ROADMAP.md](ROADMAP.md) for detailed development plans and our [Development Phases](https://github.com/BlockchainCommons/Community/blob/master/release-path.md) for general approach.
 
