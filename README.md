@@ -3,6 +3,8 @@
 > - _github: `https://github.com/OpenIntegrityProject/core/blob/main/README.md`_
 > - _updated: 2026-10-16 by Christopher Allen <ChristopherA@LifeWithAlacrity.com>_
 
+> **Superseded design (2026-11-16).** This repository describes an earlier Open Integrity design: signer files in `.repo/config/verification/` and two signer roles. It is being replaced by the Self-Rooted and Identity Repositories specification, with four signer roles and signer files in `.repo/config/signers/`, to be published at https://github.com/OpenIntegrityProject/inception-spec. This repository will be revised to follow it once that repository exists.
+
 ## 📖 Introduction
 
 _**Cryptographic Roots of Trust for Open Source Development**_
